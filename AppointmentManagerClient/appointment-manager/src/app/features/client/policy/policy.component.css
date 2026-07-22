@@ -1,0 +1,124 @@
+.policy-page {
+  min-height: 100vh;
+  background: var(--bg-light);
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 40px 16px 60px;
+}
+
+.policy-card {
+  width: 100%;
+  max-width: 720px;
+  padding: 0;
+  overflow: hidden;
+}
+
+/* ── כותרת עליונה ────────────────────────────────────────────── */
+.policy-header {
+  background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+  color: white;
+  padding: 36px 40px 28px;
+  text-align: center;
+}
+
+.policy-title {
+  font-family: var(--font-heading);
+  font-size: clamp(1.3rem, 3vw, 1.75rem);
+  font-weight: 700;
+  color: white;
+  margin-bottom: 8px;
+}
+
+.policy-subtitle {
+  font-size: 0.9rem;
+  color: rgba(255,255,255,.8);
+}
+
+/* ── גוף המדיניות ────────────────────────────────────────────── */
+.policy-body {
+  padding: 32px 40px;
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+}
+
+.policy-section {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.section-heading {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--primary);
+}
+
+.section-num {
+  min-width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--primary);
+  color: white;
+  font-size: 0.8rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.policy-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.policy-list li {
+  font-size: 0.9rem;
+  color: var(--text-dark);
+  line-height: 1.6;
+  padding-right: 18px;
+  position: relative;
+
+  &::before {
+    content: '•';
+    position: absolute;
+    right: 0;
+    color: var(--accent);
+    font-weight: 700;
+  }
+}
+
+.policy-list__warning {
+  color: var(--primary) !important;
+  font-weight: 600;
+
+  &::before {
+    color: var(--primary) !important;
+  }
+}
+
+/* ── כפתורי פעולה ────────────────────────────────────────────── */
+.policy-actions {
+  padding: 24px 40px 36px;
+  border-top: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+}
+
+/* ── רספונסיב ────────────────────────────────────────────────── */
+@media (max-width: 600px) {
+  .policy-header  { padding: 28px 20px 22px; }
+  .policy-body    { padding: 24px 20px; }
+  .policy-actions { padding: 20px 20px 28px; }
+}

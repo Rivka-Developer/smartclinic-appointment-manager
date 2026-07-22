@@ -1,0 +1,102 @@
+<div class="wt-panel" [class.wt-open]="panelOpen()">
+
+  <!-- כפתור toggle — תמיד מוצג -->
+  <button class="wt-toggle-btn" (click)="togglePanel()">
+    <span class="wt-toggle-label">הגדרת משמרות שבועיות</span>
+    <span class="wt-chevron" [class.rotated]="panelOpen()">›</span>
+  </button>
+
+  @if (panelOpen()) {
+    <div class="wt-body">
+
+      <!-- כפתורי פעולה -->
+      <div class="wt-actions">
+        @if (!editMode()) {
+          <button class="btn-wt-edit" (click)="openEdit()">ערוך תבנית</button>
+          <button
+            class="btn-wt-apply"
+            [disabled]="applying() || !weekStart"
+            (click)="applyToWeek()"
+          >
+            @if (applying()) { מחיל... } @else { החל על שבוע זה }
+          </button>
+        }
+        @if (editMode()) {
+          <button class="btn-wt-ghost" (click)="resetToDefault()">ברירת מחדל</button>
+          <button class="btn-wt-ghost" (click)="cancelEdit()">ביטול</button>
+          <button class="btn-wt-save" (click)="saveTemplate()">שמור תבנית</button>
+        }
+      </div>
+
+      <!-- תצוגה מקוצרת -->
+      @if (!editMode()) {
+        <div class="wt-summary">
+          @for (day of activeDays(); track day.dayOfWeek) {
+            <div class="wt-day-chip">
+              <span class="chip-day">{{ dayLabels[day.dayOfWeek] }}</span>
+              <span class="chip-shifts">
+                @for (s of day.shifts; track $index) {
+                  <span class="shift-tag" [class.morning]="s.startTime < '15:00'">
+                    {{ s.startTime }}–{{ s.endTime }}
+                  </span>
+                }
+              </span>
+            </div>
+          }
+          @if (activeDays().length === 0) {
+            <span class="wt-empty">אין ימים פעילים — לחצי על "ערוך תבנית" להגדרה</span>
+          }
+        </div>
+      }
+
+      <!-- עורך התבנית -->
+      @if (editMode()) {
+        <div class="wt-editor">
+          @for (day of draft(); track day.dayOfWeek; let i = $index) {
+            <div class="ed-day-row" [class.day-off]="!day.enabled">
+
+              <!-- toggle יום -->
+              <label class="ed-day-label">
+                <input type="checkbox" [checked]="day.enabled" (change)="toggleDay(i)" />
+                <span class="ed-day-name">{{ dayLabels[day.dayOfWeek] }}</span>
+              </label>
+
+              <!-- משמרות היום -->
+              <div class="ed-shifts">
+                @if (day.enabled) {
+                  @for (shift of day.shifts; track $index; let j = $index) {
+                    <div class="ed-shift-row">
+                      <!-- dir=ltr מתקן את סדר ההצגה של שעת התחלה לפני שעת סיום -->
+                      <span class="ed-time-range" dir="ltr">
+                        <input
+                          type="time"
+                          class="ed-time-in"
+                          [value]="shift.startTime"
+                          (change)="updateTime(i, j, 'startTime', $any($event.target).value)"
+                        />
+                        <span class="ed-sep">–</span>
+                        <input
+                          type="time"
+                          class="ed-time-in"
+                          [value]="shift.endTime"
+                          (change)="updateTime(i, j, 'endTime', $any($event.target).value)"
+                        />
+                      </span>
+                      <button class="ed-btn-del" (click)="removeShift(i, j)" title="הסר משמרת">✕</button>
+                    </div>
+                  }
+                  <button class="ed-btn-add" (click)="addShift(i)">+ הוסף משמרת</button>
+                } @else {
+                  <span class="ed-day-off">לא פעיל</span>
+                }
+              </div>
+
+            </div>
+          }
+        </div>
+      }
+
+    </div>
+  }
+
+</div>

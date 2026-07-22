@@ -1,0 +1,112 @@
+<app-week-calendar
+  title="קביעת תור חדש"
+  subtitle="בחרי בלוק זמן פנוי כדי להמשיך"
+  [loading]="loading()"
+  [hasAnyEvening]="hasAnyEveningBlocks()"
+  [minWeek]="0"
+  [maxWeek]="MAX_WEEKS"
+  spinnerText="טוען זמנים פנויים..."
+  (weekBuilt)="onWeekBuilt($event)"
+>
+
+  <!-- תג "עבר" בכותרת יום -->
+  <ng-template #dayHeaderExtra let-day>
+    @if (day.isPast) {
+      <span class="past-badge">עבר</span>
+    }
+  </ng-template>
+
+  <!-- תוכן בוקר -->
+  <ng-template #dayMorning let-day let-i="index">
+    @if (day.isWeekend) {
+      <div class="no-shifts"><span>סגור</span></div>
+    }
+
+    @if (!day.isWeekend && day.isPast) {
+      <div class="no-shifts past-msg">
+        <span>לא ניתן לקבוע תור לתאריך שעבר. אנא בחרי תאריך עתידי</span>
+      </div>
+    }
+
+    @if (!day.isWeekend && !day.isPast) {
+      @if (weekDays()[i].loaded && (weekDays()[i].freeBlocks.length === 0 || isDateBlocked(day.date))) {
+        <div class="no-shifts">
+          @if (isDateBlocked(day.date)) {
+            <span>ניתן לתאם תורים החל מיום העסקים הבא בלבד (הרישום לכל יום נסגר ערב קודם בשעה 23:00)</span>
+          } @else {
+            <span>אין זמינות</span>
+          }
+        </div>
+      }
+
+      @for (item of morningItems(weekDays()[i]); track $index) {
+        @if (item.kind === 'mine') {
+          <div class="my-appt-block" (click)="cancelAppt(item.appt)" title="לחצי לביטול התור">
+            <span class="my-appt-badge">✓ התור שלי</span>
+            <span class="my-appt-time">{{ formatTime(item.appt.startTime) }} – {{ formatTime(item.appt.endTime) }}</span>
+            <span class="my-appt-dur">{{ item.appt.durationMinutes }} דק׳</span>
+          </div>
+        } @else {
+          <div class="free-block" (click)="selectBlock(day.date, item.block)"
+               [title]="formatTime(item.block.start) + ' – ' + formatTime(item.block.end)">
+            <span class="block-time">{{ formatTime(item.block.start) }} – {{ formatTime(item.block.end) }}</span>
+            <span class="block-dur">{{ item.block.durationMinutes }} דקות</span>
+          </div>
+        }
+      }
+    }
+  </ng-template>
+
+  <!-- תוכן ערב -->
+  <ng-template #dayEvening let-day let-i="index">
+    @if (!day.isPast) {
+      @for (item of eveningItems(weekDays()[i]); track $index) {
+        @if (item.kind === 'mine') {
+          <div class="my-appt-block" (click)="cancelAppt(item.appt)" title="לחצי לביטול התור">
+            <span class="my-appt-badge">✓ התור שלי</span>
+            <span class="my-appt-time">{{ formatTime(item.appt.startTime) }} – {{ formatTime(item.appt.endTime) }}</span>
+            <span class="my-appt-dur">{{ item.appt.durationMinutes }} דק׳</span>
+          </div>
+        } @else {
+          <div class="free-block evening" (click)="selectBlock(day.date, item.block)"
+               [title]="formatTime(item.block.start) + ' – ' + formatTime(item.block.end)">
+            <span class="block-time">{{ formatTime(item.block.start) }} – {{ formatTime(item.block.end) }}</span>
+            <span class="block-dur">{{ item.block.durationMinutes }} דקות</span>
+          </div>
+        }
+      }
+    }
+  </ng-template>
+
+  <!-- Empty state -->
+  @if (!loading() && allEmpty()) {
+    <app-empty-state
+      icon="calendar"
+      title="לא נמצאו זמנים פנויים"
+      description="הזמינות עשויה להתעדכן בכל עת — כדאי לבדוק שוב מאוחר יותר או לנסות שבוע אחר"
+    />
+  }
+
+</app-week-calendar>
+
+<!-- דיאלוג ביטול תור -->
+@if (confirmAppt()) {
+  <app-cancel-confirm-dialog
+    [appointment]="confirmAppt()!"
+    [cancelling]="cancelling()"
+    question="האם את בטוחה שברצונך לבטל את התור?"
+    (confirmed)="confirmCancel()"
+    (closed)="confirmAppt.set(null)"
+  />
+}
+
+<!-- דיאלוג קביעת תור (משותף) -->
+@if (showDialog() && selectedDate() && selectedBlock()) {
+  <app-booking-dialog
+    [date]="selectedDate()!"
+    [block]="selectedBlock()!"
+    [isAdmin]="false"
+    (booked)="onBooked()"
+    (closed)="showDialog.set(false)"
+  />
+}

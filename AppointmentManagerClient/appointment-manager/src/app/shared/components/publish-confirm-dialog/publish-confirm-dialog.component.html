@@ -1,0 +1,47 @@
+<!-- publish-confirm-dialog.component.html -->
+<div class="dialog-overlay" (click)="closed.emit()">
+  <div class="dialog-panel" (click)="$event.stopPropagation()">
+
+    <div class="dialog-title">
+      <app-icon name="warning" [size]="18"></app-icon>
+      פרסום תור פנוי
+    </div>
+
+    <!-- פרטי התור -->
+    <div class="cancel-date-block">
+      <span class="cancel-hebrew">{{ hebrewCalendar.formatDateStr(appointment.startTime) }}</span>
+      <span class="cancel-greg">{{ appointment.startTime | date:'d/M/y' }}</span>
+      <span class="cancel-time">
+        <app-icon name="clock" [size]="15"></app-icon>
+        {{ appointment.startTime | date:'HH:mm' }}
+      </span>
+    </div>
+
+    <!-- כללים -->
+    <div class="publish-rules">
+      <p class="rules-title">לפני שמאשרים — חשוב לדעת:</p>
+      <ul class="rules-list">
+        <li>
+          <app-icon name="warning" [size]="14"></app-icon>
+          <span>כל לקוחה יכולה לקחת את התור — לאחר שהתור נלקח, <strong>לא תוכלי להגיע</strong> למרפאה.</span>
+        </li>
+        <li>
+          <app-icon name="warning" [size]="14"></app-icon>
+          <span>אם אף לקוחה לא תיקח את התור — <strong>את עדיין חייבת להגיע לטיפול</strong>. אי-הגעה תחויב בקנס, ללא יוצא מן הכלל.</span>
+        </li>
+      </ul>
+    </div>
+
+    <div class="dialog-actions">
+      <button class="btn btn-ghost" (click)="closed.emit()" [disabled]="publishing">חזרה</button>
+      <button class="btn btn-primary" (click)="confirmed.emit()" [disabled]="publishing">
+        @if (!publishing) {
+          <span>מאשרת ומפרסמת</span>
+        } @else {
+          <span class="btn-loader-dark"></span>
+        }
+      </button>
+    </div>
+
+  </div>
+</div>

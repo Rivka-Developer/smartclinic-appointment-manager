@@ -1,0 +1,11 @@
+/* src/app/features/auth/login/login.component.css */
+.auth-page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #eef2ff 0%, #f0fdf4 100%);
+  padding: 24px;
+}
+
+.auth-link { color: var(--accent-hover); }

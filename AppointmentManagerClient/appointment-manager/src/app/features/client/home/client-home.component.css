@@ -1,0 +1,171 @@
+/* src/app/features/client/home/client-home.component.css */
+/* ─────────────────────────────────────────────────────────────────────────────
+  עיצוב דף הבית של הלקוחה (Client Home Styles).
+
+  מגדיר:
+    .hero          – פס כחול עם גרדיאנט, טקסט לבן
+    .actions-grid  – רשת אוטומטית 2 עמודות (auto-fit)
+    .action-card   – כרטיס ניווט עם אפקט הרמה בהובר
+    .features-grid – רשת 3 עמודות לשלבי ההדרכה
+    .feature-num   – עיגול מספור ממולא בצבע primary
+──────────────────────────────────────────────────────────────────────────────── */
+
+.home-page { background: var(--bg-light); min-height: 100vh; }
+
+/* Hero Section – פס כחול עם טקסט לבן */
+.hero {
+  background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+  color: white;
+  padding: 56px 24px;
+}
+
+.hero-inner { max-width: 640px; }
+
+/* תג "ברוכה הבאה" בתוך ה-hero */
+.hero-badge {
+  display: inline-block;
+  background: rgba(255,255,255,.15);
+  border: 1px solid rgba(255,255,255,.25);
+  border-radius: 20px;
+  padding: 4px 14px;
+  font-size: 0.82rem;
+  font-weight: 500;
+  margin-bottom: 14px;
+  letter-spacing: .4px;
+}
+
+/* כותרת עם גודל מותאם למסך (clamp) */
+.hero-title {
+  font-family: var(--font-heading);
+  font-size: clamp(1.8rem, 4vw, 2.6rem); /* גודל דינמי בין 1.8 ל-2.6 rem */
+  font-weight: 700;
+  color: white;
+  margin-bottom: 14px;
+  line-height: 1.2;
+}
+
+.hero-desc {
+  font-size: 1rem;
+  color: rgba(255,255,255,.85);
+  line-height: 1.7;
+  max-width: 520px;
+}
+
+.section-title {
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: var(--primary);
+  margin-bottom: 20px;
+}
+
+/* רשת אוטומטית – 2 עמודות במסך רחב, 1 במסך צר */
+.actions-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 20px;
+  margin-bottom: 32px;
+}
+
+/* כרטיס ניווט קליק */
+.action-card {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 14px;
+  padding: 28px;
+  text-decoration: none;
+  transition: transform .2s, box-shadow .2s;
+  cursor: pointer;
+
+  /* אפקט הרמה בהובר */
+  &:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--shadow-lg);
+  }
+
+  .btn { margin-top: auto; } /* הכפתור תמיד בתחתית הכרטיס */
+}
+
+.action-icon {
+  width: 52px;
+  height: 52px;
+  border-radius: var(--radius-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  svg { width: 26px; height: 26px; }
+}
+
+/* צבעי אייקונים: accent (ירוק-כחול) ו-primary (כחול כהה) */
+.accent-icon       { background: var(--accent-light);  color: var(--accent-hover); }
+.primary-icon      { background: var(--primary-50);    color: var(--primary); }
+.primary-bg-accent { background: var(--accent-light);  color: var(--primary); }
+
+.action-title {
+  font-size: 1.15rem;
+  font-weight: 600;
+  color: var(--primary);
+  margin: 0;
+}
+
+.action-desc {
+  font-size: 0.875rem;
+  color: var(--text-muted);
+  line-height: 1.6;
+  flex: 1; /* תופס את כל המקום הפנוי כדי להדחיק את הכפתור לתחתית */
+}
+
+.features {
+  padding: 32px;
+  overflow: visible;
+}
+
+.features-title {
+  font-size: 1.15rem;
+  font-weight: 600;
+  color: var(--primary);
+  margin-bottom: 28px;
+}
+
+/* רשת 3 עמודות למסך רחב, 1 למסך צר */
+.features-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 24px;
+}
+
+.feature-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+
+  h4 {
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: var(--text-dark);
+    margin-bottom: 4px;
+  }
+
+  p {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    line-height: 1.6;
+  }
+}
+
+/* עיגול מספור שלב */
+.feature-num {
+  min-width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: var(--primary);
+  color: white;
+  font-family: var(--font-heading);
+  font-weight: 700;
+  font-size: 0.9rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0; /* לא יצטמצם גם כשהטקסט ארוך */
+}

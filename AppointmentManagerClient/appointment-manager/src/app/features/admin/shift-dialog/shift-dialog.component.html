@@ -1,0 +1,127 @@
+<!-- src/app/features/admin/shift-dialog/shift-dialog.component.html -->
+<!-- ─────────────────────────────────────────────────────────────────────────────
+  תבנית דיאלוג ניהול משמרות (Shift Dialog Template).
+──────────────────────────────────────────────────────────────────────────────── -->
+
+<!-- overlay: לחיצה מחוץ לפאנל שולחת אירוע close -->
+<div class="dialog-overlay" (click)="close.emit()">
+  <div class="dialog-panel shift-dialog" (click)="$event.stopPropagation()">
+    <!-- כותרת עם תאריך היום בעברית + לועזי -->
+    <div class="dialog-title">
+      <app-icon name="clipboard" [size]="18"></app-icon> ניהול משמרות
+      <span class="date-label">{{ dateLabel }}</span>
+    </div>
+
+    <!-- תגי חגים – מוצגים אם קיימים חגים ביום זה -->
+    @if (dateHolidays.length > 0) {
+      <div class="holiday-row">
+        @for (h of dateHolidays; track h) {
+          <span class="holiday-tag"><app-icon name="star" [size]="12"></app-icon> {{ h }}</span>
+        }
+      </div>
+    }
+
+    <!-- ─── משמרות קיימות ──────────────────────────────────────────────── -->
+    @if (existingShifts.length > 0) {
+      <div class="existing-shifts">
+        <label class="form-label">משמרות קיימות</label>
+        @for (s of existingShifts; track s.id) {
+          <div class="shift-row">
+            <span class="shift-time">{{ formatTS(s.startTime) }} – {{ formatTS(s.endTime) }}</span>
+            <!-- כפתור הסרה: מושבת בזמן שמירה -->
+            <button class="btn btn-danger btn-sm" (click)="deleteShift(s.id)" [disabled]="saving()">
+              הסר
+            </button>
+          </div>
+        }
+      </div>
+    }
+
+    <!-- קו הפרדה בין משמרות קיימות לטופס ההוספה -->
+    @if (existingShifts.length > 0) {
+      <div class="divider"></div>
+    }
+
+    <!-- ─── הוספת משמרת חדשה ───────────────────────────────────────────── -->
+    <label class="form-label">הוסף משמרות</label>
+    <!-- כפתורי פריסט: בחירה/ביטול בחירה עם toggle -->
+    <div class="presets">
+      @for (p of presets; track p.label) {
+        <button
+          class="btn btn-outline"
+          [class.selected]="isSelected(p.label)"
+          (click)="togglePreset(p.label)"
+        >
+          @if (isSelected(p.label)) {
+            <app-icon name="check" [size]="13" class="check-icon"></app-icon>
+          }
+          {{ p.label }}<br>
+          <small>{{ p.start }} – {{ p.end }}</small>
+        </button>
+      }
+      <!-- כפתור "אחר": מציג שדות שעה חופשיים -->
+      <button
+        class="btn btn-outline"
+        [class.selected]="isSelected('other')"
+        (click)="togglePreset('other')"
+      >
+        @if (isSelected('other')) {
+          <app-icon name="check" [size]="13" class="check-icon"></app-icon>
+        }
+        אחר<br>
+        <small>בחירה חופשית</small>
+      </button>
+    </div>
+
+    <!-- שדות שעה חופשיים – מוצגים רק כאשר "אחר" נבחר -->
+    @if (isSelected('other')) {
+      <div class="custom-times">
+        <div class="form-group">
+          <label class="form-label">שעת התחלה</label>
+          <input type="time" class="form-control" [(ngModel)]="customStart" dir="ltr" />
+        </div>
+        <div class="form-group">
+          <label class="form-label">שעת סיום</label>
+          <input type="time" class="form-control" [(ngModel)]="customEnd" dir="ltr" />
+        </div>
+      </div>
+    }
+
+    <!-- ─── מצב ריבוי ימים ─────────────────────────────────────────────── -->
+    <!-- מוצג רק כאשר נבחרה לפחות משמרת אחת -->
+    @if (hasAnySelected()) {
+      <div class="multi-day-row">
+        <label class="toggle-label">
+          <input type="checkbox" [checked]="multiDayMode()" (change)="toggleMultiDay()" />
+          הוסף לכמה ימים
+        </label>
+      </div>
+    }
+    <!-- שדה תאריך סיום – מוצג רק במצב ריבוי ימים -->
+    @if (multiDayMode()) {
+      <div class="form-group">
+        <label class="form-label">עד תאריך (כולל)</label>
+        <!-- minEndDate מונע בחירת תאריך לפני היום הנוכחי -->
+        <input type="date" class="form-control" [(ngModel)]="endDateStr" [min]="minEndDate" dir="ltr" />
+      </div>
+    }
+
+    <!-- ─── כפתורי פעולה ───────────────────────────────────────────────── -->
+    <div class="dialog-actions">
+      <button class="btn btn-ghost" (click)="close.emit()">סגור</button>
+      <!-- addButtonLabel מציג "הוסף X משמרות" כאשר X > 1 -->
+      <button
+        class="btn btn-accent"
+        [disabled]="!canAdd() || saving()"
+        (click)="addShifts()"
+      >
+        @if (!saving()) {
+          <span>{{ addButtonLabel }}</span>
+        }
+        @if (saving()) {
+          <span class="btn-loader-dark"></span>
+        }
+      </button>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,300 @@
+/* ─── פאנל ─────────────────────────────────────────────────────────────── */
+.wt-panel {
+  background: #fff;
+  border: 1px solid #e9edf2;
+  border-radius: 10px;
+  margin-bottom: 14px;
+  box-shadow: 0 1px 3px rgba(30,58,95,.04);
+  overflow: hidden;
+
+  &.wt-open { border-color: #d1d9e0; }
+}
+
+/* ─── כפתור toggle ────────────────────────────────────────────────────── */
+.wt-toggle-btn {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 8px 14px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  font-family: inherit;
+  transition: background .15s;
+
+  &:hover { background: #f8fafc; }
+}
+
+.wt-toggle-label {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #64748b;
+  white-space: nowrap;
+}
+
+.wt-chevron {
+  font-size: 1rem;
+  color: #94a3b8;
+  transition: transform .2s;
+  transform: rotate(90deg);
+  flex-shrink: 0;
+
+  &.rotated { transform: rotate(-90deg); }
+}
+
+/* ─── גוף הפאנל ──────────────────────────────────────────────────────── */
+.wt-body {
+  padding: 10px 14px 14px;
+  border-top: 1px solid #f1f5f9;
+}
+
+/* ─── כפתורי פעולה ───────────────────────────────────────────────────── */
+.wt-actions {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  flex-wrap: wrap;
+  margin-bottom: 10px;
+}
+
+.btn-wt-edit {
+  font-size: 0.75rem;
+  padding: 4px 10px;
+  border-radius: 5px;
+  border: 1px solid #cbd5e1;
+  background: transparent;
+  color: #475569;
+  cursor: pointer;
+  font-weight: 600;
+  font-family: inherit;
+  transition: background .15s, color .15s, border-color .15s;
+  &:hover { border-color: #1e3a5f; color: #1e3a5f; background: #f8fafc; }
+}
+
+.btn-wt-apply {
+  font-size: 0.75rem;
+  padding: 4px 12px;
+  border-radius: 5px;
+  border: none;
+  background: #15803d;
+  color: #fff;
+  cursor: pointer;
+  font-weight: 600;
+  font-family: inherit;
+  transition: background .15s, opacity .15s;
+  &:hover:not(:disabled) { background: #166534; }
+  &:disabled { opacity: 0.45; cursor: default; }
+}
+
+.btn-wt-save {
+  font-size: 0.75rem;
+  padding: 4px 12px;
+  border-radius: 5px;
+  border: none;
+  background: #1e3a5f;
+  color: #fff;
+  cursor: pointer;
+  font-weight: 600;
+  font-family: inherit;
+  transition: background .15s;
+  &:hover { background: #162e4a; }
+}
+
+.btn-wt-ghost {
+  font-size: 0.75rem;
+  padding: 4px 10px;
+  border-radius: 5px;
+  border: 1px solid #e2e8f0;
+  background: transparent;
+  color: #94a3b8;
+  cursor: pointer;
+  font-weight: 500;
+  font-family: inherit;
+  transition: border-color .15s, color .15s;
+  &:hover { border-color: #94a3b8; color: #64748b; }
+}
+
+/* ─── תצוגה מקוצרת (chips) ───────────────────────────────────────────── */
+.wt-summary {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.wt-day-chip {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 6px 12px;
+}
+
+.chip-day {
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: #1e3a5f;
+  white-space: nowrap;
+}
+
+.chip-shifts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.shift-tag {
+  font-size: 0.72rem;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 4px;
+  background: #d1fae5;
+  color: #15803d;
+  direction: ltr;
+  white-space: nowrap;
+
+  &.morning { background: #dbeafe; color: #0369a1; }
+}
+
+.wt-empty {
+  font-size: 0.78rem;
+  color: #94a3b8;
+  font-style: italic;
+  padding: 4px 0;
+}
+
+/* ─── עורך התבנית ────────────────────────────────────────────────────── */
+.wt-editor {
+  display: flex;
+  flex-direction: column;
+  max-width: 420px;
+}
+
+.ed-day-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 8px 0;
+  border-bottom: 1px solid #f1f5f9;
+
+  &:last-child { border-bottom: none; }
+  &.day-off .ed-day-name { color: #b0bac5; }
+}
+
+.ed-day-label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 72px;
+  cursor: pointer;
+  padding-top: 5px;
+  flex-shrink: 0;
+
+  input[type="checkbox"] {
+    width: 14px;
+    height: 14px;
+    accent-color: #15803d;
+    cursor: pointer;
+    flex-shrink: 0;
+  }
+}
+
+.ed-day-name {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #334155;
+}
+
+.ed-shifts {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.ed-shift-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+  background: #f9fafb;
+  border: 1px solid #e9edf2;
+  border-radius: 7px;
+  padding: 5px 8px;
+  transition: border-color .15s;
+
+  &:hover { border-color: #c7d0da; }
+}
+
+.ed-time-range {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  flex: 1;
+}
+
+.ed-range-label {
+  font-size: 0.68rem;
+  color: #b0bac5;
+  font-weight: 600;
+  min-width: 12px;
+}
+
+.ed-time-in {
+  font-size: 0.8rem;
+  padding: 3px 6px;
+  border: 1px solid #dde2e8;
+  border-radius: 5px;
+  background: #fff;
+  color: #334155;
+  font-family: inherit;
+  cursor: pointer;
+  transition: border-color .15s;
+
+  &:focus { outline: none; border-color: #94a3b8; }
+}
+
+.ed-sep {
+  font-size: 0.8rem;
+  color: #b0bac5;
+}
+
+.ed-btn-del {
+  background: transparent;
+  border: none;
+  color: #c7d0da;
+  cursor: pointer;
+  font-size: 0.72rem;
+  padding: 3px 5px;
+  border-radius: 3px;
+  line-height: 1;
+  flex-shrink: 0;
+  transition: background .15s, color .15s;
+
+  &:hover { background: #fee2e2; color: #ef4444; }
+}
+
+.ed-btn-add {
+  align-self: flex-start;
+  background: transparent;
+  border: 1px dashed #dde2e8;
+  color: #b0bac5;
+  border-radius: 6px;
+  font-size: 0.72rem;
+  padding: 4px 10px;
+  cursor: pointer;
+  font-family: inherit;
+  transition: border-color .15s, color .15s, background .15s;
+
+  &:hover { border-color: #15803d; color: #15803d; background: #f0fdf4; }
+}
+
+.ed-day-off {
+  font-size: 0.72rem;
+  color: #b0bac5;
+  font-style: italic;
+  padding: 5px 0;
+}

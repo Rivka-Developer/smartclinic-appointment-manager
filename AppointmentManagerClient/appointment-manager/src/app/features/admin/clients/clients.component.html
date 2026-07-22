@@ -1,0 +1,223 @@
+<!-- src/app/features/admin/clients/clients.component.html -->
+<!-- ─────────────────────────────────────────────────────────────────────────────
+  תבנית עמוד ניהול לקוחות (Clients Template).
+──────────────────────────────────────────────────────────────────────────────── -->
+
+<div class="page-wrapper">
+  <!-- כותרת העמוד + תיבת חיפוש -->
+  <div class="page-header">
+    <div>
+      <h1 class="page-title">ניהול לקוחות</h1>
+      <!-- מספר הלקוחות הכולל (לא המסוננות) -->
+      <p class="page-sub">{{ usersService.clients().length }} לקוחות רשומות</p>
+    </div>
+    <!-- חיפוש בזמן אמת: מעדכן searchQuery ו-filteredClients מחשב מחדש -->
+    <div class="search-box">
+      <app-icon name="search" class="search-icon"></app-icon>
+      <input
+        type="text"
+        class="search-input"
+        placeholder="חיפוש לפי שם או טלפון..."
+        [ngModel]="searchQuery()" (ngModelChange)="searchQuery.set($event)"
+      />
+    </div>
+  </div>
+
+  <!-- ספינר מוצג בזמן טעינת רשימת הלקוחות -->
+  <app-spinner [show]="usersService.loading()" text="טוען לקוחות..." />
+
+  <!-- טבלת לקוחות – מוצגת לאחר סיום הטעינה -->
+  @if (!usersService.loading()) {
+    <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr>
+            <th>שם מלא</th>
+            <th>טלפון</th>
+            <th>אימייל</th>
+            <th>סה"כ תורים</th>
+            <th>פעולות</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- שורה לכל לקוחה מסוננת -->
+          @for (client of filteredClients(); track client.id) {
+            <tr>
+              <td>
+                <!-- אוואטר: עיגול עם האות הראשונה של השם -->
+                <div class="client-name">
+                  <span class="avatar">{{ client.fullName[0] }}</span>
+                  {{ client.fullName }}
+                </div>
+              </td>
+              <td>
+                <!-- dir="ltr": מספר טלפון יוצג משמאל לימין -->
+                <span dir="ltr">{{ client.phoneNumber }}</span>
+              </td>
+              <td>
+                <span dir="ltr" class="text-muted">{{ client.email }}</span>
+              </td>
+              <td>
+                <span class="badge badge-muted">{{ client.totalAppointments }} תורים</span>
+              </td>
+              <td>
+                <div class="actions-cell">
+                  <!-- קביעת תור עבור הלקוחה: עובר ליומן עם פרטיה מולאו מראש -->
+                  <button
+                    class="btn btn-accent btn-sm"
+                    (click)="bookFor(client)"
+                    title="קבע תור עבור {{ client.fullName }}"
+                  >
+                    <app-icon name="calendar" [size]="14"></app-icon>
+                    קבע תור
+                  </button>
+                  <!-- לחיצה טוענת את היסטוריית התורים ופותחת דיאלוג -->
+                  <button
+                    class="btn btn-outline btn-sm"
+                    (click)="loadHistory(client.id)"
+                  >
+                    היסטוריה
+                  </button>
+                  <!-- כפתור מחיקת לקוח + כל תוריו -->
+                  <button
+                    class="btn-icon-danger"
+                    (click)="startDelete(client)"
+                    title="מחק לקוח וכל התורים שלו"
+                  >
+                    <app-icon name="trash" [size]="14"></app-icon>
+                  </button>
+                </div>
+              </td>
+            </tr>
+          }
+          <!-- הודעה כאשר אין תוצאות לחיפוש -->
+          @if (filteredClients().length === 0) {
+            <tr>
+              <td colspan="5" class="text-center text-muted" style="padding: 32px;">
+                לא נמצאו לקוחות
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+</div>
+
+<!-- ─── דיאלוג היסטוריית תורים ────────────────────────────────────────────── -->
+<!-- מוצג כאשר historyClient מכיל נתוני לקוחה; לחיצה על overlay סוגרת -->
+@if (historyClient()) {
+  <div class="dialog-overlay" (click)="historyClient.set(null)">
+    <div class="dialog-panel history-panel" (click)="$event.stopPropagation()">
+      <div class="dialog-title">
+        <app-icon name="clipboard" [size]="18"></app-icon> היסטוריה - {{ historyClient()!.fullName }}
+      </div>
+
+      <!-- פרטי קשר: טלפון + מייל -->
+      <div class="history-meta">
+        <span><app-icon name="phone" [size]="14"></app-icon> {{ historyClient()!.phoneNumber }}</span>
+        <span><app-icon name="mail"  [size]="14"></app-icon> {{ historyClient()!.email }}</span>
+      </div>
+
+      <!-- ספינר בזמן טעינת הנתונים מה-API -->
+      <app-spinner [show]="historyLoading()" text="טוען היסטוריה..." />
+
+      <!-- רשימת תורים: כל תור מציג תאריך עברי, שעה, משך וסטטוס -->
+      @if (!historyLoading()) {
+        <div class="history-list">
+          @for (appt of historyClient()!.appointments; track appt.id) {
+            <div
+              class="history-item"
+              [class.cancelled]="appt.status === 'Cancelled'"
+            >
+              <!-- כרטיסיית תאריך: עברי ולועזי -->
+              <div class="appt-date-box">
+                <span class="hebrew-date-main">{{ hebrewCalendar.formatDateStr(appt.startTime) }}</span>
+                <span class="gregorian-sub">{{ appt.startTime | date:'d/M' }}</span>
+              </div>
+              <div class="hist-body">
+                <!-- שעת תחילה וסיום: dir="ltr" לתצוגת HH:mm – HH:mm נכונה -->
+                <div class="hist-time">
+                  <app-icon name="clock" [size]="13"></app-icon>
+                  {{ appt.startTime | date:'HH:mm' }} – {{ appt.endTime | date:'HH:mm' }}
+                </div>
+                <div class="hist-meta">
+                  <span class="hist-dur">{{ appt.durationMinutes }} דק'</span>
+                  <!-- תג סטטוס: מוצג רק עבור Cancelled/Completed, לא Scheduled -->
+                  @if (appt.status !== 'Scheduled') {
+                    <span class="badge" [ngClass]="statusClass(appt.status)">
+                      {{ statusLabel(appt.status) }}
+                    </span>
+                  }
+                </div>
+              </div>
+              <!-- כפתור ביטול: מוצג רק לתורים מתוכננים עתידיים -->
+              @if (appt.status === 'Scheduled' && !isPast(appt.startTime)) {
+                <button
+                  class="btn btn-danger btn-sm"
+                  (click)="startCancel(appt)"
+                >
+                  ביטול תור
+                </button>
+              }
+            </div>
+          }
+
+          @if (historyClient()!.appointments.length === 0) {
+            <div class="text-center text-muted" style="padding: 32px;">
+              אין תורים בהיסטוריה
+            </div>
+          }
+        </div>
+      }
+
+      <div class="dialog-actions">
+        <button class="btn btn-ghost" (click)="historyClient.set(null)">סגור</button>
+      </div>
+    </div>
+  </div>
+}
+
+<!-- ─── דיאלוג אישור ביטול תור ─────────────────────────────────────────────── -->
+@if (confirmAppt()) {
+  <app-cancel-confirm-dialog
+    [appointment]="confirmAppt()!"
+    [question]="'האם לבטל את התור של ' + historyClient()?.fullName + '?'"
+    [cancelling]="cancelling()"
+    (confirmed)="confirmCancel()"
+    (closed)="confirmAppt.set(null)"
+  />
+}
+
+<!-- ─── דיאלוג אישור מחיקת לקוח ──────────────────────────────────────────── -->
+@if (confirmDeleteClient()) {
+  <div class="dialog-overlay" (click)="confirmDeleteClient.set(null)">
+    <div class="dialog-panel delete-confirm-panel" (click)="$event.stopPropagation()">
+      <div class="dialog-title">
+        <app-icon name="warning" [size]="18"></app-icon>
+        מחיקת לקוח
+      </div>
+
+      <p class="delete-confirm-text">
+        האם אתה בטוח שברצונך למחוק את
+        <strong>{{ confirmDeleteClient()!.fullName }}</strong>?
+      </p>
+      <p class="delete-confirm-warning">
+        פעולה זו תמחק את הלקוח ואת <strong>כל {{ confirmDeleteClient()!.totalAppointments }} התורים</strong> שלו לצמיתות ולא ניתן לשחזר.
+      </p>
+
+      <div class="dialog-actions">
+        <button class="btn btn-ghost" (click)="confirmDeleteClient.set(null)" [disabled]="deleting()">ביטול</button>
+        <button class="btn btn-danger" (click)="confirmDelete()" [disabled]="deleting()">
+          @if (!deleting()) {
+            <app-icon name="trash" [size]="14"></app-icon>
+            כן, מחק לצמיתות
+          }
+          @if (deleting()) {
+            <span class="btn-loader-dark"></span>
+          }
+        </button>
+      </div>
+    </div>
+  </div>
+}

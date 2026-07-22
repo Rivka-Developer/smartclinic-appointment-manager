@@ -1,0 +1,45 @@
+<!-- swap-accept-dialog.component.html -->
+<div class="dialog-overlay" (click)="closed.emit()">
+  <div class="dialog-panel" (click)="$event.stopPropagation()">
+
+    <div class="dialog-title">
+      <app-icon name="calendar" [size]="18"></app-icon>
+      קביעת תור מלוח הפנויים
+    </div>
+
+    <!-- פרטי התור -->
+    <div class="cancel-date-block">
+      <span class="cancel-hebrew">{{ hebrewCalendar.formatDateStr(offer.appointmentStartTime) }}</span>
+      <span class="cancel-greg">{{ formatDate(offer.appointmentStartTime) }}</span>
+      <span class="cancel-time">
+        <app-icon name="clock" [size]="15"></app-icon>
+        {{ formatTime(offer.appointmentStartTime) }}–{{ getEndTime(offer.appointmentStartTime, offer.appointmentDurationMinutes) }}
+      </span>
+    </div>
+
+    <!-- אזהרה על חוסר אפשרות ביטול -->
+    <div class="swap-accept-warning">
+      <div class="swap-accept-warning-title">
+        <app-icon name="warning" [size]="16"></app-icon>
+        <strong>לא ניתן לבטל תור זה לאחר הקביעה</strong>
+      </div>
+      <p>
+        תור זה מתקיים תוך פחות מ-24 שעות —
+        מדיניות הביטול אינה חלה עליו וייגבה <strong>קנס ביטול מלא</strong>
+        אם לא תגיעי.
+      </p>
+    </div>
+
+    <div class="dialog-actions">
+      <button class="btn btn-ghost" (click)="closed.emit()" [disabled]="accepting">חזרה</button>
+      <button class="btn btn-accent" (click)="confirmed.emit()" [disabled]="accepting">
+        @if (!accepting) {
+          <span>הבנתי, קבלי את התור</span>
+        } @else {
+          <span class="btn-loader-dark"></span>
+        }
+      </button>
+    </div>
+
+  </div>
+</div>

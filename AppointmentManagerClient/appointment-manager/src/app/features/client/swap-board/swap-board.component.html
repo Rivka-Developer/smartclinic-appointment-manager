@@ -1,0 +1,123 @@
+<!-- src/app/features/client/swap-board/swap-board.component.html -->
+<div class="page-wrapper">
+
+  <div class="page-header">
+    <div>
+      <h1 class="page-title">תורים פנויים</h1>
+      <p class="page-sub">תורים שלקוחות אחרות פרסמו — זמינים לקחת עכשיו</p>
+    </div>
+  </div>
+
+  <!-- הסבר: למי הדף הזה מיועד -->
+  <div class="scenarios-banner">
+    <div class="scenario-card scenario-stuck">
+      <div class="scenario-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="10"/>
+          <line x1="12" y1="8" x2="12" y2="12"/>
+          <line x1="12" y1="16" x2="12.01" y2="16"/>
+        </svg>
+      </div>
+      <div class="scenario-text">
+        <strong>לא יכולה להגיע לתור?</strong>
+        <span>פרסמי אותו כתור פנוי — מישהי תקח אותו ואת פטורה מתשלום קנס</span>
+      </div>
+    </div>
+
+    <div class="scenario-divider">או</div>
+
+    <div class="scenario-card scenario-urgent">
+      <div class="scenario-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
+        </svg>
+      </div>
+      <div class="scenario-text">
+        <strong>צריכה תור דחוף?</strong>
+        <span>אין זמינות בקביעה הרגילה? קחי תור שכבר פנוי היום</span>
+      </div>
+    </div>
+  </div>
+
+  <app-spinner [show]="swapService.loading()" text="טוען תורים פנויים..." />
+
+  @if (!swapService.loading() && swapService.activeOffers().length === 0) {
+    <app-empty-state
+      icon="calendar"
+      title="אין תורים פנויים כרגע"
+      description="כרגע אין תורים פנויים. בדקי שוב מאוחר יותר, או כנסי לתורים שלי כדי לפרסם תור שלא תוכלי להגיע אליו."
+      actionLabel="לתורים שלי"
+      (action)="[]"
+    />
+  }
+
+  @if (!swapService.loading() && swapService.activeOffers().length > 0) {
+    <div class="swap-list">
+      @for (offer of swapService.activeOffers(); track offer.id) {
+        <div class="swap-card card">
+
+          <!-- שעה ותאריך -->
+          <div class="swap-left">
+            <div class="swap-date-box">
+              <div class="swap-day-row">
+                <span class="swap-day-name">{{ getDayOfWeek(offer.appointmentStartTime) }}</span>
+                @if (getRelativeDay(offer.appointmentStartTime)) {
+                  <span class="swap-relative-badge">{{ getRelativeDay(offer.appointmentStartTime) }}</span>
+                }
+              </div>
+              <div class="swap-dates-row">
+                <span class="swap-hebrew-date">{{ hebrewCalendar.formatDateStr(offer.appointmentStartTime) }}</span>
+                <span class="swap-row-sep">|</span>
+                <span class="swap-greg-date">{{ getGregorianDate(offer.appointmentStartTime) }}</span>
+              </div>
+              <div class="swap-time-row">
+                <span class="swap-time-range">{{ formatTime(offer.appointmentStartTime) }}–{{ getEndTime(offer.appointmentStartTime, offer.appointmentDurationMinutes) }}</span>
+                <span class="swap-row-sep">|</span>
+                <span class="swap-duration-label">{{ getDurationLabel(offer.appointmentDurationMinutes) }}</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- מציעה -->
+          <div class="swap-body">
+            <div class="swap-offerer">
+              <app-icon name="user" [size]="14"></app-icon>
+              <span>פורסם ע"י <strong>{{ offer.offeredByName }}</strong></span>
+            </div>
+          </div>
+
+          <!-- פעולה -->
+          <div class="swap-action">
+            @if (isOwnOffer(offer)) {
+              <button
+                class="btn btn-danger btn-sm"
+                [disabled]="cancelling() === offer.id"
+                (click)="cancelOffer(offer)">
+                {{ cancelling() === offer.id ? 'מבטל...' : 'בטלי פרסום' }}
+              </button>
+              <span class="swap-note">זהו תורך</span>
+            } @else {
+              <button
+                class="btn btn-accent btn-sm"
+                [disabled]="accepting() === offer.id"
+                (click)="accept(offer)">
+                {{ accepting() === offer.id ? 'רושמת...' : 'אני רוצה תור זה' }}
+              </button>
+            }
+          </div>
+
+        </div>
+      }
+    </div>
+  }
+
+</div>
+
+@if (pendingOffer()) {
+  <app-swap-accept-dialog
+    [offer]="pendingOffer()!"
+    [accepting]="accepting() === pendingOffer()?.id"
+    (confirmed)="confirmAccept()"
+    (closed)="pendingOffer.set(null)"
+  />
+}

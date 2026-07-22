@@ -1,0 +1,19 @@
+<!-- src/app/shared/components/snackbar/snackbar.component.html -->
+<!-- ─────────────────────────────────────────────────────────────────────────────
+  תבנית רכיב Snackbar.
+──────────────────────────────────────────────────────────────────────────────── -->
+
+@if (snack.message(); as msg) {
+  <div class="snack" [class]="msg.type">
+    @if (msg.type === 'success') {
+      <app-icon name="check" [size]="16"></app-icon>
+    }
+    @if (msg.type === 'error') {
+      <app-icon name="x-mark" [size]="16"></app-icon>
+    }
+    @if (msg.type === 'info') {
+      <app-icon name="info" [size]="16"></app-icon>
+    }
+    {{ msg.text }}
+  </div>
+}

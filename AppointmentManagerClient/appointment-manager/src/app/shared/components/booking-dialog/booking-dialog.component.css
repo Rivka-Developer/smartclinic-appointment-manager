@@ -1,0 +1,75 @@
+/* src/app/shared/components/booking-dialog/booking-dialog.component.css */
+/* עיצוב ספציפי לדיאלוג קביעת תור.
+   .dialog-overlay, .dialog-panel, .dialog-title, .dialog-actions,
+   .form-group, .form-label, .form-control, .form-error, .btn-loader-dark
+   מוגדרים ב-styles.scss הגלובלי. */
+
+.dialog-desc {
+  color: var(--text-muted);
+  margin-bottom: 20px;
+  font-size: 0.9rem;
+}
+
+.duration-options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.dur-btn {
+  padding: 8px 16px;
+  border: 1.5px solid var(--border-dark);
+  border-radius: var(--radius-md);
+  background: white;
+  font-family: var(--font-body);
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: all .2s;
+  color: var(--text-dark);
+
+  &:hover { border-color: var(--accent); color: var(--accent-hover); }
+  &.selected { background: var(--accent); border-color: var(--accent); color: white; font-weight: 600; }
+}
+
+.duration-hint {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  margin-top: 6px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.placement-loading {
+  text-align: center;
+  padding: 12px;
+  color: var(--text-muted);
+  font-size: 0.85rem;
+}
+
+.placement-section { margin-top: 20px; }
+
+.placement-btns {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-top: 8px;
+}
+
+.placement-btns .btn {
+  flex: 1;
+  min-width: 80px;
+  text-align: center;
+  flex-direction: column;
+  gap: 2px;
+  padding: 10px;
+
+  small { font-size: 0.75rem; font-weight: 400; direction: ltr; }
+
+  &.selected {
+    background: var(--primary-50);
+    border-color: var(--primary);
+    color: var(--primary);
+    font-weight: 600;
+  }
+}

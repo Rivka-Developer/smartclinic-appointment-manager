@@ -1,0 +1,80 @@
+/* CSS משותף לכל תצוגות לוח השנה השבועי */
+
+.week-nav { display: flex; align-items: center; gap: 12px; }
+
+/* גלילה אופקית במסכים צרים */
+.cal-card { overflow-x: auto; }
+
+/* רשת 7 עמודות */
+.week-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  min-width: 700px;
+}
+
+.day-header {
+  padding: 12px 10px;
+  text-align: center;
+  border-bottom: 2px solid var(--border);
+  border-inline-start: 1px solid var(--border);
+  background: var(--bg-light);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  transition: background .2s;
+
+  &.first-col  { border-inline-start: none; }
+  &:hover      { background: var(--primary-50); }
+  &.today      { background: var(--primary-50); border-bottom-color: var(--primary); }
+  &.past       { background: #f3f4f6; border-bottom-color: #d1d5db; }
+  &.weekend {
+    background: repeating-linear-gradient(
+      -45deg,
+      #f8fafc 0px, #f8fafc 10px,
+      #e2e8f0 10px, #e2e8f0 11px
+    );
+    border-bottom-color: var(--border-dark);
+    pointer-events: none;
+    & .day-hebrew    { color: var(--text-light); }
+    & .day-name      { color: var(--text-light); }
+    & .day-gregorian { color: var(--text-light); }
+  }
+}
+
+.day-morning,
+.day-evening {
+  border-inline-start: 1px solid var(--border);
+  padding: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  &.first-col { border-inline-start: none; }
+  &.weekend {
+    background: repeating-linear-gradient(
+      -45deg,
+      #f8fafc 0px, #f8fafc 10px,
+      #e2e8f0 10px, #e2e8f0 11px
+    );
+    pointer-events: none;
+  }
+}
+
+.day-morning { min-height: 220px; }
+.day-evening { min-height: 60px; }
+
+/* קו הפרדה מלא-רוחב בין בוקר לערב */
+.period-divider-row { grid-column: 1 / -1; border-top: 2px solid var(--border); }
+
+/* שמות ותאריכים בכותרת יום */
+.day-name      { font-size: 0.75rem; font-weight: 600; color: var(--text-muted); }
+.day-hebrew    { font-size: 1.05rem; font-weight: 700; color: var(--primary); direction: rtl; line-height: 1.1; }
+.day-gregorian { font-size: 0.7rem; color: var(--text-light); }
+.holiday-row   { display: flex; flex-direction: column; gap: 2px; width: 100%; }
+.holiday-tag   {
+  font-size: 0.6rem; font-weight: 600;
+  background: #dbeafe; color: #1e40af;
+  padding: 1px 5px; border-radius: 10px;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  max-width: 100%; direction: rtl;
+}

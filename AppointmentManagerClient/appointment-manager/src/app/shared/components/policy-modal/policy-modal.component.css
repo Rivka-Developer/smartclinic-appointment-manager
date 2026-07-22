@@ -1,0 +1,156 @@
+/* ── Backdrop ───────────────────────────────────────────────── */
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.65);
+  backdrop-filter: blur(3px);
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px 16px;
+  overflow-y: auto;
+}
+
+/* ── Card ───────────────────────────────────────────────────── */
+.modal-card {
+  width: 100%;
+  max-width: 680px;
+  max-height: calc(100vh - 40px);
+  display: flex;
+  flex-direction: column;
+  padding: 0;
+  overflow: hidden;
+  animation: modal-in .22s ease-out;
+}
+
+@keyframes modal-in {
+  from { opacity: 0; transform: translateY(16px) scale(.97); }
+  to   { opacity: 1; transform: translateY(0)    scale(1);   }
+}
+
+/* ── Header ─────────────────────────────────────────────────── */
+.modal-header {
+  background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+  color: white;
+  padding: 28px 36px 22px;
+  text-align: center;
+  flex-shrink: 0;
+}
+
+.modal-title {
+  font-family: var(--font-heading);
+  font-size: clamp(1.15rem, 3vw, 1.5rem);
+  font-weight: 700;
+  color: white;
+  margin-bottom: 6px;
+}
+
+.modal-subtitle {
+  font-size: 0.85rem;
+  color: rgba(255,255,255,.8);
+}
+
+/* ── Scrollable body ────────────────────────────────────────── */
+.modal-body {
+  overflow-y: auto;
+  padding: 28px 36px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  flex: 1;
+}
+
+.policy-section {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.section-heading {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--primary);
+}
+
+.section-num {
+  min-width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: var(--primary);
+  color: white;
+  font-size: 0.78rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.policy-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+
+.policy-list li {
+  font-size: 0.875rem;
+  color: var(--text-dark);
+  line-height: 1.6;
+  padding-right: 16px;
+  position: relative;
+
+  &::before {
+    content: '•';
+    position: absolute;
+    right: 0;
+    color: var(--accent);
+    font-weight: 700;
+  }
+}
+
+.policy-list__warning {
+  color: var(--primary) !important;
+  font-weight: 600;
+
+  &::before {
+    color: var(--primary) !important;
+  }
+}
+
+/* ── Footer ─────────────────────────────────────────────────── */
+.modal-footer {
+  padding: 20px 36px 28px;
+  border-top: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  flex-shrink: 0;
+}
+
+.confirm-note {
+  font-size: 0.82rem;
+  color: var(--text-muted);
+  text-align: center;
+  max-width: 440px;
+  line-height: 1.5;
+}
+
+.btn-lg {
+  padding: 13px 32px;
+  font-size: 0.95rem;
+}
+
+/* ── רספונסיב ───────────────────────────────────────────────── */
+@media (max-width: 600px) {
+  .modal-header { padding: 22px 20px 18px; }
+  .modal-body   { padding: 20px 20px; }
+  .modal-footer { padding: 16px 20px 22px; }
+}

@@ -1,0 +1,69 @@
+/* CSS ייחודי לדף קביעת תור — layout משותף ב-week-calendar.component.css */
+
+/* ימים שעברו: שקיפות + פסים */
+:host ::ng-deep .day-morning.day-past,
+:host ::ng-deep .day-evening.day-past {
+  opacity: 0.55;
+  background: repeating-linear-gradient(-45deg, transparent, transparent 6px, rgba(0,0,0,0.03) 6px, rgba(0,0,0,0.03) 12px);
+}
+
+.past-badge {
+  position: absolute; top: 4px; left: 4px;
+  font-size: 0.6rem; font-weight: 700;
+  background: #9ca3af; color: white;
+  padding: 1px 5px; border-radius: 10px;
+}
+
+.no-shifts { flex: 1; display: flex; align-items: center; justify-content: center; span { font-size: 0.7rem; color: var(--text-muted); font-style: italic; opacity: 0.6; } }
+.past-msg  { display: flex; flex-direction: column; align-items: center; gap: 4px; color: #9ca3af; }
+.past-shift-block { border: 1.5px solid #d1d5db; border-radius: var(--radius-sm); padding: 8px 10px; display: flex; flex-direction: column; gap: 2px; background: #f9fafb; cursor: not-allowed; }
+.past-shift-time  { font-size: 0.78rem; font-weight: 600; color: #9ca3af; direction: ltr; }
+.past-shift-label { font-size: 0.7rem; color: #9ca3af; }
+
+/* תורים קיימים של הלקוחה */
+.my-appt-block {
+  background: #ffffff;
+  border: 1.5px solid #1e5799;
+  border-radius: var(--radius-sm);
+  padding: 8px 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  cursor: pointer;
+  box-shadow: 0 1px 4px rgba(30,87,153,.12);
+  transition: all .2s;
+  &:hover { background: #f0f4fa; transform: translateY(-1px); box-shadow: var(--shadow-sm); }
+}
+
+.my-appt-badge {
+  font-size: 0.65rem;
+  font-weight: 700;
+  background: #1e5799;
+  color: white;
+  padding: 2px 7px;
+  border-radius: 10px;
+  align-self: flex-start;
+  letter-spacing: .3px;
+}
+
+.my-appt-time {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: #1e5799;
+  direction: ltr;
+}
+
+.my-appt-dur {
+  font-size: 0.72rem;
+  color: rgba(30,87,153,.75);
+}
+
+/* בלוקים פנויים */
+.free-block {
+  background: #dbeafe; border: 1.5px solid #0369a1; border-radius: var(--radius-sm);
+  padding: 8px 10px; cursor: pointer; transition: all .2s; display: flex; flex-direction: column; gap: 2px;
+  &:hover { background: #bfdbfe; transform: translateY(-1px); box-shadow: var(--shadow-sm); }
+  &.evening { background: #d1fae5; border-color: #047857; &:hover { background: #a7f3d0; } }
+}
+.block-time { font-size: 0.78rem; font-weight: 600; color: #0369a1; direction: ltr; .evening & { color: #047857; } }
+.block-dur  { font-size: 0.72rem; color: var(--text-muted); }

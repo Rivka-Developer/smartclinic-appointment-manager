@@ -1,0 +1,113 @@
+<!-- src/app/features/client/my-appointments/my-appointments.component.html -->
+<div class="page-wrapper">
+  <div class="page-header">
+    <div>
+      <h1 class="page-title">התורים שלי</h1>
+      <p class="page-sub">כל התורים שקבעת</p>
+    </div>
+  </div>
+
+  <app-spinner [show]="apptService.loading()" text="טוען תורים..." />
+
+  @if (!apptService.loading() && appointments().length === 0) {
+    <app-empty-state
+      icon="calendar"
+      title="אין תורים עדיין"
+      description="עדיין לא קבעת תורים. לחצי כדי לקבוע את התור הראשון שלך!"
+      actionLabel="לקביעת תור ראשון"
+      (action)="router.navigate(['/client/new-appointment'])"
+    />
+  }
+
+  @if (!apptService.loading() && appointments().length > 0) {
+    <div class="appointments-list">
+      @for (appt of appointments(); track appt.id) {
+        @let past = isPast(appt);
+        <div class="appt-card card" [class.past]="past">
+
+          <!-- תאריך -->
+          <div class="appt-left">
+            <div class="appt-date">
+              <span class="hebrew-date-main">{{ hebrewCalendar.formatDateStr(appt.startTime) }}</span>
+              <span class="gregorian-sub">{{ appt.startTime | date:'d/M' }}</span>
+            </div>
+          </div>
+
+          <!-- פרטי התור -->
+          <div class="appt-body">
+            <div class="appt-time">
+              <app-icon name="clock" [size]="15"></app-icon>
+              <span dir="ltr">{{ appt.startTime | date:'HH:mm' }} – {{ appt.endTime | date:'HH:mm' }}</span>
+            </div>
+            <div class="appt-info">
+              <span><app-icon name="clock" [size]="13"></app-icon> {{ appt.durationMinutes }} דקות</span>
+              @if (appt.status !== 'Scheduled' || past) {
+                <span class="badge" [ngClass]="past ? 'badge-past' : statusClass(appt.status)">
+                  {{ past ? 'הסתיים' : statusLabel(appt.status) }}
+                </span>
+              }
+            </div>
+            @if (holidays(appt.startTime).length > 0) {
+              <div class="holiday-row">
+                @for (h of holidays(appt.startTime); track h) {
+                  <span class="holiday-tag">
+                    <app-icon name="star" [size]="11"></app-icon> {{ h }}
+                  </span>
+                }
+              </div>
+            }
+          </div>
+
+          <!-- פעולות: מוצג רק לתורים עתידיים מתוזמנים -->
+          @if (!past && appt.status === 'Scheduled') {
+            @let activeOffer = getActiveOffer(appt);
+            <div class="appt-actions">
+              @if (canCancel(appt)) {
+                <button class="btn btn-danger btn-sm" (click)="cancel(appt)">ביטול תור</button>
+              } @else if (activeOffer) {
+                <button class="btn btn-unpublish btn-sm" (click)="cancelPublish(activeOffer.id)" [disabled]="cancellingOffer()">
+                  {{ cancellingOffer() ? 'מבטלת פרסום...' : 'בטלי פרסום' }}
+                </button>
+              } @else {
+                <button class="btn btn-outline btn-sm" (click)="openPublishDialog(appt)">
+                  לא יכולה להגיע? פרסמי
+                </button>
+              }
+              <span class="cancel-note">
+                @if (canCancel(appt)) {
+                  ניתן לבטל עד 24 שעות לפני התור
+                } @else if (activeOffer) {
+                  התור מפורסם בלוח התורים הפנויים
+                } @else {
+                  לא ניתן לבטל – נותרו פחות מ-24 שעות
+                }
+              </span>
+            </div>
+          }
+
+        </div>
+      }
+    </div>
+  }
+</div>
+
+<!-- דיאלוג אישור ביטול -->
+@if (confirmAppt()) {
+  <app-cancel-confirm-dialog
+    [appointment]="confirmAppt()!"
+    question="האם את בטוחה שברצונך לבטל את התור?"
+    [cancelling]="cancelling()"
+    (confirmed)="confirmCancel()"
+    (closed)="confirmAppt.set(null)"
+  />
+}
+
+<!-- דיאלוג אישור פרסום תור פנוי -->
+@if (publishAppt()) {
+  <app-publish-confirm-dialog
+    [appointment]="publishAppt()!"
+    [publishing]="publishing()"
+    (confirmed)="confirmPublish()"
+    (closed)="publishAppt.set(null)"
+  />
+}

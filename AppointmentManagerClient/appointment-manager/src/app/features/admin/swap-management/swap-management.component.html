@@ -1,0 +1,164 @@
+<div class="page-wrapper">
+
+  <!-- כותרת + כפתור הוספה -->
+  <div class="page-header">
+    <div>
+      <h1 class="page-title">ניהול העברות תורים</h1>
+      <p class="page-sub">פרסמי, בטלי וקבלי הצעות העברה עבור לקוחות</p>
+    </div>
+    <button class="btn btn-primary" (click)="openAddDialog()">+ פרסמי הצעה חדשה</button>
+  </div>
+
+  <!-- פילטר סטטוס -->
+  <div class="filter-bar">
+    <button class="chip" [class.chip-active]="activeFilter() === undefined"  (click)="applyFilter(undefined)">הכל</button>
+    <button class="chip" [class.chip-active]="activeFilter() === 'Active'"   (click)="applyFilter('Active')">פעילות</button>
+    <button class="chip" [class.chip-active]="activeFilter() === 'Accepted'" (click)="applyFilter('Accepted')">התקבלו</button>
+    <button class="chip" [class.chip-active]="activeFilter() === 'Cancelled'" (click)="applyFilter('Cancelled')">בוטלו</button>
+  </div>
+
+  <app-spinner [show]="swapService.adminLoading()" text="טוען הצעות..." />
+
+  @if (!swapService.adminLoading() && swapService.adminOffers().length === 0) {
+    <app-empty-state
+      icon="calendar"
+      title="אין הצעות להצגה"
+      description="לא נמצאו הצעות העברה בסינון הנוכחי." />
+  }
+
+  <!-- רשימת כרטיסיות -->
+  @if (!swapService.adminLoading() && swapService.adminOffers().length > 0) {
+    <div class="offers-list">
+      @for (offer of swapService.adminOffers(); track offer.id) {
+        <div class="offer-card card">
+
+          <!-- שורה עליונה: תאריך + שעה + badge סטטוס -->
+          <div class="offer-header">
+            <div class="offer-time-block">
+              <span class="offer-date">{{ formatDate(offer.appointmentStartTime) }}</span>
+              <span class="offer-time">
+                {{ formatTime(offer.appointmentStartTime) }}–{{ getEndTime(offer.appointmentStartTime, offer.appointmentDurationMinutes) }}
+              </span>
+              <span class="offer-duration">{{ offer.appointmentDurationMinutes }} דקות</span>
+            </div>
+            <span class="status-badge" [ngClass]="statusClass(offer.status)">
+              {{ statusLabel(offer.status) }}
+            </span>
+          </div>
+
+          <!-- פרטי לקוחות -->
+          <div class="offer-clients">
+            <div class="client-row">
+              <app-icon name="user" [size]="14" />
+              <span>מציעה: <strong>{{ offer.offeredByName }}</strong>
+                @if (offer.offeredByEmail) {
+                  <span class="email-muted">({{ offer.offeredByEmail }})</span>
+                }
+              </span>
+            </div>
+            <div class="client-row">
+              <app-icon name="user" [size]="14" />
+              <span>בעלים נוכחי: <strong>{{ offer.currentOwnerName }}</strong></span>
+            </div>
+            @if (offer.acceptedByName) {
+              <div class="client-row">
+                <app-icon name="check" [size]="14" />
+                <span>עבר אל: <strong>{{ offer.acceptedByName }}</strong>
+                  @if (offer.acceptedAt) {
+                    <span class="date-muted"> — {{ formatDate(offer.acceptedAt) }}</span>
+                  }
+                </span>
+              </div>
+            }
+          </div>
+
+          <!-- כפתורי פעולה — רק להצעות פעילות -->
+          @if (offer.status === 'Active') {
+            <div class="offer-actions">
+              <button class="btn btn-primary btn-sm" (click)="openAcceptDialog(offer)">
+                קבלי עבור לקוחה
+              </button>
+              <button
+                class="btn btn-danger btn-sm"
+                [disabled]="cancelling() === offer.id"
+                (click)="cancelOffer(offer)">
+                {{ cancelling() === offer.id ? 'מבטל...' : 'בטלי הצעה' }}
+              </button>
+            </div>
+          }
+
+        </div>
+      }
+    </div>
+  }
+
+</div>
+
+<!-- ═══════════ דיאלוג: פרסום הצעה חדשה ═══════════ -->
+@if (showAddDialog()) {
+  <div class="dialog-overlay" (click)="showAddDialog.set(false)">
+    <div class="dialog-panel" (click)="$event.stopPropagation()">
+      <h2 class="dialog-title">פרסמי הצעת העברה</h2>
+      <p class="dialog-sub">בחרי תור במסגרת 24 השעות הקרובות — הוא יפורסם בלוח ולקוחות אחרות יוכלו לקחת אותו.</p>
+
+      <label class="field-label">בחרי תור</label>
+      <select class="field-select" [(ngModel)]="selectedApptId" [ngModelOptions]="{standalone: true}">
+        <option value="">— בחרי תור —</option>
+        @for (appt of futureAppointments(); track appt.id) {
+          <option [value]="appt.id">
+            {{ appt.clientName }} — {{ formatDate(appt.startTime) }} {{ formatTime(appt.startTime) }} ({{ appt.durationMinutes }} דק')
+          </option>
+        }
+      </select>
+
+      @if (futureAppointments().length === 0) {
+        <p class="empty-note">אין תורים עתידיים מתוזמנים ב-24 השעות הקרובות.</p>
+      }
+
+      <div class="dialog-actions">
+        <button class="btn btn-ghost" (click)="showAddDialog.set(false)">ביטול</button>
+        <button
+          class="btn btn-primary"
+          [disabled]="!selectedApptId() || addSubmitting()"
+          (click)="submitAddOffer()">
+          {{ addSubmitting() ? 'מפרסם...' : 'פרסמי הצעה' }}
+        </button>
+      </div>
+    </div>
+  </div>
+}
+
+<!-- ═══════════ דיאלוג: קבלת הצעה עבור לקוחה ═══════════ -->
+@if (pendingAcceptOffer()) {
+  <div class="dialog-overlay" (click)="pendingAcceptOffer.set(null)">
+    <div class="dialog-panel" (click)="$event.stopPropagation()">
+      <h2 class="dialog-title">קבלת הצעה עבור לקוחה</h2>
+      <p class="dialog-sub">
+        התור של <strong>{{ pendingAcceptOffer()!.offeredByName }}</strong>
+        בתאריך {{ formatDate(pendingAcceptOffer()!.appointmentStartTime) }}
+        בשעה {{ formatTime(pendingAcceptOffer()!.appointmentStartTime) }}
+        יועבר ללקוחה שתבחרי.
+      </p>
+
+      <label class="field-label">בחרי לקוחה יעד</label>
+      <select class="field-select" [(ngModel)]="selectedClientId" [ngModelOptions]="{standalone: true}">
+        <option value="">— בחרי לקוחה —</option>
+        @for (client of usersService.clients(); track client.id) {
+          <option [value]="client.id">{{ client.fullName }}</option>
+        }
+      </select>
+
+      <p class="dialog-warning">לאחר האישור ישלחו אימיילים לשתי הלקוחות.</p>
+
+      <div class="dialog-actions">
+        <button class="btn btn-ghost" (click)="pendingAcceptOffer.set(null)">ביטול</button>
+        <button
+          class="btn btn-primary"
+          [disabled]="!selectedClientId() || acceptSubmitting()"
+          (click)="submitAcceptOffer()">
+          {{ acceptSubmitting() ? 'מעביר...' : 'אשרי העברה' }}
+        </button>
+      </div>
+    </div>
+  </div>
+}

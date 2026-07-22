@@ -1,0 +1,105 @@
+<!-- src/app/features/auth/register/register.component.html -->
+<!-- ─────────────────────────────────────────────────────────────────────────────
+  תבנית דף הרשמה (Register Template).
+──────────────────────────────────────────────────────────────────────────────── -->
+
+@if (showPolicy()) {
+  <app-policy-modal (accepted)="onPolicyAccepted()" />
+}
+
+<div class="auth-page">
+  <div class="auth-card card">
+
+    <!-- לוגו ושם המערכת -->
+    <div class="auth-logo">
+      <span class="logo-icon">✦</span>
+      <span class="logo-text">AppointmentManager</span>
+      <p class="logo-sub">הרשמה ללקוחות חדשות</p>
+    </div>
+
+    <h2 class="auth-title">יצירת חשבון</h2>
+
+    <!-- טופס הרשמה -->
+    <form [formGroup]="form" (ngSubmit)="submit()">
+
+      <!-- שדה שם מלא -->
+      <div class="form-group">
+        <label class="form-label">שם מלא</label>
+        <input
+          type="text"
+          class="form-control"
+          formControlName="fullName"
+          placeholder="שם פרטי + משפחה"
+        />
+        @if (form.get('fullName')?.invalid && form.get('fullName')?.touched) {
+          <span class="form-error">שם מלא נדרש</span>
+        }
+      </div>
+
+      <!-- שדה טלפון -->
+      <div class="form-group">
+        <label class="form-label">מספר טלפון</label>
+        <input
+          type="tel"
+          class="form-control"
+          formControlName="phoneNumber"
+          placeholder="05X-XXXXXXX"
+          dir="ltr"
+        />
+        @if (form.get('phoneNumber')?.invalid && form.get('phoneNumber')?.touched) {
+          <span class="form-error">מספר טלפון נדרש</span>
+        }
+      </div>
+
+      <!-- שדה אימייל -->
+      <div class="form-group">
+        <label class="form-label">אימייל</label>
+        <input
+          type="email"
+          class="form-control"
+          formControlName="email"
+          placeholder="your@email.com"
+          dir="ltr"
+        />
+        @if (form.get('email')?.invalid && form.get('email')?.touched) {
+          <span class="form-error">אימייל לא תקין</span>
+        }
+      </div>
+
+      <!-- שדה סיסמה -->
+      <div class="form-group">
+        <label class="form-label">סיסמה</label>
+        <input
+          type="password"
+          class="form-control"
+          formControlName="password"
+          placeholder="לפחות 6 תווים"
+          dir="ltr"
+        />
+        @if (form.get('password')?.invalid && form.get('password')?.touched) {
+          <span class="form-error">סיסמה חייבת להכיל לפחות 6 תווים</span>
+        }
+      </div>
+
+      <!-- כפתור הרשמה -->
+      <button
+        type="submit"
+        class="btn btn-accent btn-lg btn-full"
+        [disabled]="form.invalid || loading()"
+      >
+        @if (!loading()) {
+          <span>הרשמה</span>
+        }
+        @if (loading()) {
+          <span class="btn-loader"></span>
+        }
+      </button>
+    </form>
+
+    <!-- קישור לדף הכניסה למי שכבר רשומה -->
+    <p class="auth-footer">
+      כבר רשומה?
+      <a routerLink="/login" class="auth-link">כניסה למערכת</a>
+    </p>
+  </div>
+</div>

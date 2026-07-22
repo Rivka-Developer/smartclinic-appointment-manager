@@ -1,0 +1,50 @@
+/* src/app/features/client/my-appointments/my-appointments.component.css
+   .page-header, .page-title, .page-sub, .dialog-actions, .btn-loader-dark
+   מוגדרים ב-styles.scss הגלובלי. */
+
+/* רשימת תורים */
+.appointments-list { display: flex; flex-direction: column; gap: 12px; }
+
+/* כרטיס תור: flex row עם 3 אזורים */
+.appt-card {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  padding: 16px 20px;
+  transition: box-shadow .2s;
+  &:hover { box-shadow: var(--shadow-md); }
+  &.past { opacity: .55; pointer-events: none; }
+}
+
+.appt-left { flex-shrink: 0; }
+
+.appt-date {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background: var(--primary-50);
+  border-radius: var(--radius-md);
+  padding: 10px 12px;
+  min-width: 70px;
+}
+
+.hebrew-date-main { font-size: 1.05rem; font-weight: 700; color: var(--primary); direction: rtl; text-align: center; line-height: 1.2; }
+.gregorian-sub    { font-size: 0.7rem; color: var(--text-light); text-align: center; }
+
+.holiday-row { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 2px; }
+.holiday-tag { font-size: 0.72rem; font-weight: 600; background: #dbeafe; color: #1e40af; padding: 2px 8px; border-radius: 10px; direction: rtl; }
+
+.appt-body { flex: 1; display: flex; flex-direction: column; gap: 6px; }
+.appt-time { display: flex; align-items: center; gap: 6px; font-size: 1rem; font-weight: 600; color: var(--text-dark); }
+.appt-info { display: flex; align-items: center; gap: 12px; font-size: 0.85rem; color: var(--text-muted); }
+.appt-actions { flex-shrink: 0; display: flex; flex-direction: column; align-items: flex-end; gap: 6px; }
+.cancel-note  { font-size: 0.75rem; color: var(--text-light); text-align: end; }
+.badge-past   { background: var(--text-light, #9ca3af); color: #fff; }
+
+.btn-unpublish {
+  background: #fef2f2;
+  color: #b91c1c;
+  border: 2px solid #dc2626;
+  &:hover:not(:disabled) { background: #fee2e2; }
+  &:disabled { opacity: .55; cursor: not-allowed; }
+}

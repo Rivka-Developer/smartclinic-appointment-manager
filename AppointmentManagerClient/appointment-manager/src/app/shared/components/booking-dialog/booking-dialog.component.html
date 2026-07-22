@@ -1,0 +1,117 @@
+<!-- src/app/shared/components/booking-dialog/booking-dialog.component.html -->
+<!-- דיאלוג קביעת תור – משמש גם ללקוחה (isAdmin=false) וגם למנהלת (isAdmin=true).
+     לחיצה על ה-overlay סוגרת את הדיאלוג. -->
+
+<div class="dialog-overlay" (click)="closed.emit()">
+  <div class="dialog-panel" (click)="$event.stopPropagation()">
+
+    <!-- כותרת -->
+    <div class="dialog-title">
+      <app-icon name="pencil-square" [size]="18"></app-icon>
+      {{ isAdmin ? 'קביעת תור עבור לקוחה' : 'כמה זמן תרצי?' }}
+    </div>
+
+    <!-- שדות לקוחה (מנהלת בלבד) -->
+    @if (isAdmin) {
+      <div class="form-group">
+        <label class="form-label">שם לקוחה</label>
+        <input type="text" class="form-control"
+               [ngModel]="clientName()" (ngModelChange)="clientName.set($event)"
+               placeholder="שם מלא" />
+      </div>
+      <div class="form-group">
+        <label class="form-label">טלפון</label>
+        <input type="tel" class="form-control"
+               [ngModel]="clientPhone()" (ngModelChange)="clientPhone.set($event)"
+               placeholder="05X-XXXXXXX" dir="ltr" />
+      </div>
+    }
+
+    <!-- תיאור הבלוק (לקוחה בלבד) -->
+    @if (!isAdmin) {
+      <p class="dialog-desc">בלוק פנוי: {{ selectedBlockLabel }}</p>
+    }
+
+    <!-- בחירת משך הטיפול -->
+    <div class="form-group">
+      <label class="form-label">משך הטיפול (בדקות)</label>
+      <div class="duration-options">
+        @for (d of durationOptions; track d) {
+          <button
+            class="dur-btn"
+            [class.selected]="selectedDuration() === d"
+            (click)="selectDuration(d)"
+          >{{ d }}'</button>
+        }
+      </div>
+      @if (maxHint) {
+        <p class="duration-hint">
+          <app-icon name="info" [size]="13"></app-icon> {{ maxHint }}
+        </p>
+      }
+    </div>
+
+    <!-- ספינר בזמן טעינת אפשרויות מיקום -->
+    @if (loadingPlacement()) {
+      <div class="placement-loading">
+        טוען אפשרויות...
+      </div>
+    }
+
+    <!-- בחירת מיקום בתוך הבלוק -->
+    @if (selectedDuration() && placement() && !loadingPlacement()) {
+      <div class="placement-section">
+        <label class="form-label">מיקום התור</label>
+        <div class="placement-btns">
+          <button class="btn btn-outline"
+                  [class.selected]="placementChoice() === 'start'"
+                  (click)="placementChoice.set('start')">
+            ◀ התחלה<br><small>{{ formatTimeSpan(placement()!.stickToStart) }}</small>
+          </button>
+          <button class="btn btn-outline"
+                  [class.selected]="placementChoice() === 'end'"
+                  (click)="placementChoice.set('end')">
+            ▶ סוף<br><small>{{ formatTimeSpan(placement()!.stickToEnd) }}</small>
+          </button>
+          @if (placement()!.validOtherRanges.length > 0) {
+            <button class="btn btn-outline"
+                    [class.selected]="placementChoice() === 'other'"
+                    (click)="placementChoice.set('other')">
+              <app-icon name="clock" [size]="15"></app-icon> זמן אחר
+            </button>
+          }
+        </div>
+      </div>
+    }
+
+    <!-- שעה ידנית -->
+    @if (placementChoice() === 'other') {
+      <div class="form-group">
+        <label class="form-label">שעת התחלה</label>
+        <input type="time" class="form-control"
+               [ngModel]="customTime()" (ngModelChange)="customTime.set($event)"
+               dir="ltr" />
+        @if (customTimeError()) {
+          <span class="form-error">{{ customTimeError() }}</span>
+        }
+      </div>
+    }
+
+    <!-- כפתורי פעולה -->
+    <div class="dialog-actions">
+      <button class="btn btn-ghost" (click)="closed.emit()">ביטול</button>
+      <button class="btn btn-accent" [disabled]="!canBook() || booking()" (click)="book()">
+        @if (!booking()) {
+          <span>
+            {{ isAdmin ? 'קבע תור' : 'אישור' }}
+            <app-icon name="check" [size]="14"></app-icon>
+          </span>
+        }
+        @if (booking()) {
+          <span class="btn-loader-dark"></span>
+        }
+      </button>
+    </div>
+
+  </div>
+</div>

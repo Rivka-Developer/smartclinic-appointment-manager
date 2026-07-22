@@ -1,0 +1,40 @@
+/* src/app/shared/components/empty-state/empty-state.component.css */
+/* ─────────────────────────────────────────────────────────────────────────────
+  עיצוב רכיב מצב ריק (Empty State Styles).
+
+  מגדיר:
+    .empty-state – מיכל flex column ממורכז אנכית ואופקית
+    .empty-icon  – עיגול אייקון בשקיפות חלקית (opacity .45)
+    .empty-title – כותרת ראשית בצבע primary
+    .empty-desc  – תיאור טקסט עם רוחב מקסימלי לקריאות
+──────────────────────────────────────────────────────────────────────────────── */
+
+/* ממרכז את התוכן במרחב הזמין */
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 64px 32px;
+  text-align: center;
+  gap: 16px;
+}
+
+/* האייקון מוצג בשקיפות חלקית – ויזואלי אך לא דומיננטי */
+.empty-icon {
+  opacity: .45;
+  color: var(--primary);
+  margin-bottom: 8px;
+}
+
+.empty-title {
+  font-size: 1.25rem;
+  color: var(--primary);
+}
+
+.empty-desc {
+  color: var(--text-muted);
+  max-width: 320px;
+  line-height: 1.6;
+  font-size: 0.9rem;
+}

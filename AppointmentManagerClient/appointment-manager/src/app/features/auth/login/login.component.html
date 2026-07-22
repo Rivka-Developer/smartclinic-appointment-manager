@@ -1,0 +1,69 @@
+<!-- src/app/features/auth/login/login.component.html -->
+<!-- ─────────────────────────────────────────────────────────────────────────────
+  תבנית דף כניסה (Login Template).
+──────────────────────────────────────────────────────────────────────────────── -->
+
+<div class="auth-page">
+  <div class="auth-card card">
+
+    <!-- לוגו ושם המערכת -->
+    <div class="auth-logo">
+      <span class="logo-icon">✦</span>
+      <span class="logo-text">AppointmentManager</span>
+      <p class="logo-sub">קליניקה מקצועית</p>
+    </div>
+
+    <h2 class="auth-title">כניסה למערכת</h2>
+
+    <!-- טופס כניסה – מחובר ל-FormGroup מה-class -->
+    <form [formGroup]="form" (ngSubmit)="submit()">
+
+      <!-- שדה אימייל -->
+      <div class="form-group">
+        <label class="form-label">אימייל</label>
+        <input
+          type="email"
+          class="form-control"
+          formControlName="email"
+          placeholder="your@email.com"
+          dir="ltr"
+        />
+        @if (form.get('email')?.invalid && form.get('email')?.touched) {
+          <span class="form-error">אימייל לא תקין</span>
+        }
+      </div>
+
+      <!-- שדה סיסמה -->
+      <div class="form-group">
+        <label class="form-label">סיסמה</label>
+        <input
+          type="password"
+          class="form-control"
+          formControlName="password"
+          placeholder="••••••••"
+          dir="ltr"
+        />
+      </div>
+
+      <!-- כפתור שליחה – מושבת אם הטופס לא תקין או בטעינה -->
+      <button
+        type="submit"
+        class="btn btn-primary btn-lg btn-full"
+        [disabled]="form.invalid || loading()"
+      >
+        @if (!loading()) {
+          <span>כניסה</span>
+        }
+        @if (loading()) {
+          <span class="btn-loader"></span>
+        }
+      </button>
+    </form>
+
+    <!-- קישור לדף ההרשמה -->
+    <p class="auth-footer">
+      עוד לא רשומה?
+      <a routerLink="/register" class="auth-link">הירשמי כאן</a>
+    </p>
+  </div>
+</div>

@@ -1,0 +1,88 @@
+/* src/app/shared/components/header/header.component.css */
+/* ─────────────────────────────────────────────────────────────────────────────
+  עיצוב כותרת עמוד גלובלית (App Header Styles).
+
+  מגדיר:
+    - .header       – פס נצמד לראש המסך (sticky) עם צל עדין
+    - .header-inner – מיכל פנימי ממורכז עם flex row
+    - .logo         – לוגו + שם המערכת
+    - .nav / .nav-link – ניווט עם הדגשה לקישור פעיל (.active)
+    - .user-area    – ברכה + כפתור התנתקות, נדחפים לצד ימין
+──────────────────────────────────────────────────────────────────────────────── */
+
+/* כותרת נצמדת לראש המסך (sticky) עם z-index גבוה */
+.header {
+  height: 64px;
+  background: var(--bg-white);
+  border-bottom: 1px solid var(--border);
+  box-shadow: var(--shadow-xs);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+/* מיכל פנימי ממורכז עם רוחב מקסימלי */
+.header-inner {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 24px;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  gap: 32px;
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  text-decoration: none;
+  color: inherit;
+  flex-shrink: 0;
+  cursor: pointer;
+}
+
+.logo-icon {
+  font-size: 1.4rem;
+  color: var(--accent); /* ירוק-כחול */
+}
+
+.logo-text {
+  font-family: var(--font-heading);
+  font-weight: 700;
+  font-size: 1.05rem;
+  color: var(--primary);
+}
+
+.nav {
+  display: flex;
+  gap: 4px;
+  flex: 1; /* תופס את המרחב הפנוי בין הלוגו לאזור המשתמשת */
+}
+
+.nav-link {
+  padding: 8px 14px;
+  border-radius: var(--radius-md);
+  text-decoration: none;
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: var(--text-muted);
+  transition: all .2s;
+
+  &:hover { color: var(--primary); background: var(--primary-50); }
+  /* .active מתווסף אוטומטית ע"י routerLinkActive */
+  &.active { color: var(--primary); background: var(--primary-50); font-weight: 600; }
+}
+
+/* אזור משתמשת נדחף לצד ימין (margin-right: auto ב-RTL) */
+.user-area {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-right: auto;
+}
+
+.greeting {
+  font-size: 0.875rem;
+  color: var(--text-muted);
+}

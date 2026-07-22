@@ -1,0 +1,118 @@
+<!-- src/app/features/admin/home/admin-home.component.html -->
+<!-- ─────────────────────────────────────────────────────────────────────────────
+  תבנית דף הבית של המנהלת (Admin Home Template).
+
+  מבנה:
+    .home-page
+      .hero           – Hero כהה עם ברכה אישית ותיאור יכולות
+      .page-wrapper
+        .actions-grid – 2 כרטיסי ניווט: "יומן שבועי" ו-"לקוחות"
+        .features     – 3 נקודות סיכום יכולות המערכת
+
+  ה-hero כאן כהה יותר מדף הלקוחה (גרדיאנט כחול כהה).
+──────────────────────────────────────────────────────────────────────────────── -->
+
+<div class="home-page">
+
+  <!-- Hero Section: ברכה אישית למנהלת עם רקע כהה יותר מדף הלקוח -->
+  <div class="hero">
+    <div class="container">
+      <div class="hero-inner">
+        <div class="hero-badge">ממשק ניהול</div>
+        <!-- {{ user()?.fullName }} מגיע מה-Signal של AuthService -->
+        <h1 class="hero-title">שלום, {{ user()?.fullName }}</h1>
+        <p class="hero-desc">
+          ברוכה הבאה ללוח הניהול. כאן תוכלי לנהל משמרות עבודה, לצפות בתורים של הלקוחות
+          ולקבוע תורים חדשים מטעמן.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <div class="page-wrapper">
+
+    <h2 class="section-title">ניהול מהיר</h2>
+    <!-- רשת כרטיסי ניווט: יומן שבועי + לקוחות -->
+    <div class="actions-grid">
+
+      <!-- כרטיס: יומן שבועי → /admin/calendar -->
+      <a routerLink="/admin/calendar" class="action-card card">
+        <div class="action-icon primary-icon">
+          <!-- אייקון לוח שנה -->
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+            <rect x="3" y="4" width="18" height="18" rx="3"/>
+            <line x1="16" y1="2" x2="16" y2="6"/>
+            <line x1="8"  y1="2" x2="8"  y2="6"/>
+            <line x1="3" y1="10" x2="21" y2="10"/>
+          </svg>
+        </div>
+        <h3 class="action-title">יומן שבועי</h3>
+        <p class="action-desc">צפי בכל התורים והמשמרות, ערכי וקבעי תורים חדשים עבור לקוחות.</p>
+        <span class="btn btn-primary">לפתיחת היומן</span>
+      </a>
+
+      <!-- כרטיס: לקוחות → /admin/clients -->
+      <a routerLink="/admin/clients" class="action-card card">
+        <div class="action-icon accent-icon">
+          <!-- אייקון קבוצת משתמשים -->
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+            <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/>
+            <circle cx="9" cy="7" r="4"/>
+            <path d="M23 21v-2a4 4 0 00-3-3.87"/>
+            <path d="M16 3.13a4 4 0 010 7.75"/>
+          </svg>
+        </div>
+        <h3 class="action-title">לקוחות</h3>
+        <p class="action-desc">צפי ברשימת כל הלקוחות הרשומות במערכת ופרטי הקשר שלהן.</p>
+        <span class="btn btn-accent">לרשימת לקוחות</span>
+      </a>
+
+      <!-- כרטיס: העברות תורים → /admin/swap-management -->
+      <a routerLink="/admin/swap-management" class="action-card card">
+        <div class="action-icon warn-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+            <path d="M7 16V4m0 0L3 8m4-4l4 4"/>
+            <path d="M17 8v12m0 0l4-4m-4 4l-4-4"/>
+          </svg>
+        </div>
+        <h3 class="action-title">העברות תורים</h3>
+        <p class="action-desc">פרסמי, בטלי וקבלי הצעות העברה בין לקוחות.</p>
+        <span class="btn btn-warning">לניהול הצעות</span>
+      </a>
+
+    </div>
+
+    <!-- סיכום יכולות המערכת: 3 נקודות עם נקודות צבעוניות -->
+    <div class="features card">
+      <h2 class="features-title">יכולות המערכת</h2>
+      <div class="features-grid">
+
+        <div class="feature-item">
+          <div class="feature-dot feature-dot--primary"></div>
+          <div>
+            <h4>ניהול משמרות</h4>
+            <p>הגדרי ועדכני משמרות עבודה ושעות פתיחה.</p>
+          </div>
+        </div>
+
+        <div class="feature-item">
+          <div class="feature-dot feature-dot--accent"></div>
+          <div>
+            <h4>ניהול תורים</h4>
+            <p>קבעי, עדכני וביטלי תורים של לקוחות ישירות מהיומן.</p>
+          </div>
+        </div>
+
+        <div class="feature-item">
+          <div class="feature-dot feature-dot--warn"></div>
+          <div>
+            <h4>ניהול לקוחות</h4>
+            <p>צפי ברשימת הלקוחות ופרטי הקשר שלהן.</p>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+</div>

@@ -1,0 +1,37 @@
+<!-- src/app/shared/components/cancel-confirm-dialog/cancel-confirm-dialog.component.html -->
+<!-- לחיצה על ה-overlay סוגרת את הדיאלוג ללא ביטול -->
+
+<div class="dialog-overlay" (click)="closed.emit()">
+  <div class="dialog-panel" (click)="$event.stopPropagation()">
+
+    <div class="dialog-title">
+      <app-icon name="warning" [size]="18"></app-icon>
+      ביטול תור
+    </div>
+
+    <p class="cancel-q">{{ question }}</p>
+
+    <!-- פרטי התור: תאריך עברי, לועזי, שעה -->
+    <div class="cancel-date-block">
+      <span class="cancel-hebrew">{{ hebrewCalendar.formatDateStr(appointment.startTime) }}</span>
+      <span class="cancel-greg">{{ appointment.startTime | date:'d/M/y' }}</span>
+      <span class="cancel-time">
+        <app-icon name="clock" [size]="15"></app-icon>
+        {{ appointment.startTime | date:'HH:mm' }}
+      </span>
+    </div>
+
+    <div class="dialog-actions">
+      <button class="btn btn-ghost" (click)="closed.emit()">חזרה</button>
+      <button class="btn btn-danger" (click)="confirmed.emit()" [disabled]="cancelling">
+        @if (!cancelling) {
+          <span>כן, בטל</span>
+        }
+        @if (cancelling) {
+          <span class="btn-loader-dark"></span>
+        }
+      </button>
+    </div>
+
+  </div>
+</div>

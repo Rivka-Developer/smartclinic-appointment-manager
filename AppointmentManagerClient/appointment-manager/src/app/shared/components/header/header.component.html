@@ -1,0 +1,60 @@
+<!-- src/app/shared/components/header/header.component.html -->
+<!-- ─────────────────────────────────────────────────────────────────────────────
+  תבנית כותרת עמוד גלובלית (App Header Template).
+──────────────────────────────────────────────────────────────────────────────── -->
+
+<!-- הכותרת מוצגת רק למשתמשות מחוברות -->
+@if (auth.isLoggedIn()) {
+  <header class="header">
+    <div class="header-inner">
+
+      <!-- לוגו: מנווט לדף הבית המתאים לפי תפקיד -->
+      <a class="logo"
+         [routerLink]="auth.isAdmin() ? '/admin/home' : '/client/home'">
+        <span class="logo-icon">✦</span>
+        <span class="logo-text">AppointmentManager</span>
+      </a>
+
+      <!-- תפריט ניווט ללקוחה (לא מנהלת) -->
+      @if (!auth.isAdmin()) {
+        <nav class="nav">
+          <a routerLink="/client/new-appointment" routerLinkActive="active" class="nav-link">
+            קביעת תור
+          </a>
+          <a routerLink="/client/my-appointments" routerLinkActive="active" class="nav-link">
+            התורים שלי
+          </a>
+          <a routerLink="/client/swap-board" routerLinkActive="active" class="nav-link">
+            תורים פנויים
+          </a>
+          <a routerLink="/client/policy" routerLinkActive="active" class="nav-link">
+            כללי המערכת
+          </a>
+        </nav>
+      }
+
+      <!-- תפריט ניווט למנהלת -->
+      @if (auth.isAdmin()) {
+        <nav class="nav">
+          <a routerLink="/admin/calendar" routerLinkActive="active" class="nav-link">
+            יומן
+          </a>
+          <a routerLink="/admin/clients" routerLinkActive="active" class="nav-link">
+            לקוחות
+          </a>
+          <a routerLink="/admin/swap-management" routerLinkActive="active" class="nav-link">
+            העברות תורים
+          </a>
+        </nav>
+      }
+
+      <!-- אזור משתמשת: ברכה + כפתור התנתקות -->
+      <div class="user-area">
+        <span class="greeting">שלום, {{ auth.user()?.fullName }}</span>
+        <button class="btn btn-outline btn-sm" (click)="auth.logout()">
+          התנתק
+        </button>
+      </div>
+    </div>
+  </header>
+}

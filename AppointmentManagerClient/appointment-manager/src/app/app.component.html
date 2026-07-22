@@ -1,0 +1,31 @@
+<!-- src/app/app.component.html -->
+<!-- ─────────────────────────────────────────────────────────────────────────────
+  תבנית קומפוננטת השורש (Root Component Template).
+
+  מגדירה את המבנה הכללי של האפליקציה:
+    <app-header>    – פס הניווט העליון (מוצג רק כשמחוברים)
+    <main>          – אזור התוכן הראשי
+    <router-outlet> – "חלון" הניתוב – Angular מחליף כאן את הקומפוננטה לפי ה-URL
+    <app-snackbar>  – הודעות קופצות מעל כל שאר התוכן
+──────────────────────────────────────────────────────────────────────────────── -->
+
+<!-- פס ניווט עליון – מוצג/מוסתר לפי מצב ההתחברות ב-HeaderComponent -->
+<app-header />
+
+<!-- אזור התוכן הראשי – גובהו מחושב להחסיר את גובה ה-header (64px) -->
+<main class="main-content">
+  <!-- router-outlet הוא ה"חלון" שבו Angular מחליף קומפוננטות לפי ה-URL -->
+  <router-outlet />
+</main>
+
+<!-- הודעות קופצות – מרחפות מעל כל התוכן, מקושרות ל-SnackService -->
+<app-snackbar />
+
+<!-- צ'אטבוט עוזר – מוצג ללקוחות מחוברים בלבד -->
+<app-chatbot />
+
+<!-- פוטר תחתון -->
+<footer class="app-footer">
+  Made with love by <strong>Rivka Aviezri</strong> &nbsp;·&nbsp;
+  <a href="mailto:rivka.code@gmail.com">rivka.code@gmail.com</a>
+</footer>

@@ -1,0 +1,153 @@
+<!-- באנר לקוחה ממתינה לקביעת תור -->
+@if (adminBookingState.pendingClient()) {
+  <div class="pending-client-banner">
+    <div class="pending-client-info">
+      <app-icon name="calendar" [size]="16"></app-icon>
+      <span>קובעת תור עבור <strong>{{ adminBookingState.pendingClient()!.name }}</strong> — לחצי על בלוק פנוי ביומן</span>
+    </div>
+    <button class="btn btn-ghost btn-sm" (click)="cancelPendingBooking()">
+      חזרה ללקוחות
+    </button>
+  </div>
+}
+
+<app-weekly-template
+  [weekStart]="currentWeekStart()"
+  (applied)="weekCal.rebuildWeek()"
+/>
+
+<app-week-calendar
+  title="יומן מנהלת"
+  subtitle="ניהול תורים ומשמרות"
+  [loading]="loading()"
+  [hasAnyEvening]="hasAnyEveningItems()"
+  [minWeek]="-52"
+  [maxWeek]="52"
+  spinnerText="טוען יומן..."
+  (weekBuilt)="onWeekBuilt($event)"
+  (dayHeaderClick)="onDayHeaderClick($event)"
+>
+
+  <!-- תוכן נוסף בכותרת יום: משמרות + כפתור הוספה -->
+  <ng-template #dayHeaderExtra let-day let-i="index">
+    <div class="shift-indicators">
+      @for (s of weekDays()[i].shifts; track $index) {
+        <span
+          class="shift-pill"
+          [class.shift-evening]="isEveningTime(s.startTime)"
+          [title]="formatTimeSpan(s.startTime) + '–' + formatTimeSpan(s.endTime)"
+        >
+          {{ formatTimeSpan(s.startTime) }}–{{ formatTimeSpan(s.endTime) }}
+        </span>
+      }
+    </div>
+    @if (weekDays()[i].shifts.length === 0 && !day.isPast && !day.isWeekend) {
+      <span class="manage-shifts-hint">+ הוסף משמרת</span>
+    }
+  </ng-template>
+
+  <!-- תוכן בוקר: תורים + בלוקים פנויים -->
+  <ng-template #dayMorning let-day let-i="index">
+    @for (item of morningItems(weekDays()[i]); track $index) {
+      @if (item.kind === 'appt') {
+        <div
+          class="admin-appt-chip"
+          [class.cancelled]="toAppt(item).status === 'Cancelled'"
+          (click)="!day.isPast && openCancelDialog(toAppt(item))"
+          [title]="day.isPast ? toAppt(item).clientName : toAppt(item).clientName + ' – לחץ לביטול'"
+          [style.cursor]="day.isPast ? 'default' : 'pointer'"
+        >
+          <span class="appt-name">{{ toAppt(item).clientName }}</span>
+          <span class="appt-time-chip">{{ toAppt(item).startTime | date:'HH:mm' }} ({{ toAppt(item).durationMinutes }}&apos;)</span>
+        </div>
+      }
+      @if (item.kind === 'free') {
+        <div
+          class="admin-free-block"
+          [class.past]="day.isPast"
+          (click)="!day.isPast && openBookForClientDialog(day.date, toBlock(item))"
+          [title]="day.isPast ? '' : 'לחץ לקביעת תור עבור לקוחה'"
+          [style.cursor]="day.isPast ? 'default' : 'pointer'"
+        >
+          <span>{{ formatTime(toBlock(item).start) }} – {{ formatTime(toBlock(item).end) }}</span>
+          <span class="free-label">פנוי ({{ toBlock(item).durationMinutes }}&apos;)</span>
+        </div>
+      }
+    }
+    @if (day.isWeekend) {
+      <div class="empty-day">
+        <span>סגור</span>
+      </div>
+    }
+    @if (!day.isWeekend && weekDays()[i].shifts.length === 0 && weekDays()[i].appointments.length === 0) {
+      <div class="empty-day">
+        <span>אין פעילות</span>
+      </div>
+    }
+  </ng-template>
+
+  <!-- תוכן ערב -->
+  <ng-template #dayEvening let-day let-i="index">
+    @for (item of eveningItems(weekDays()[i]); track $index) {
+      @if (item.kind === 'appt') {
+        <div
+          class="admin-appt-chip evening"
+          [class.cancelled]="toAppt(item).status === 'Cancelled'"
+          (click)="!day.isPast && openCancelDialog(toAppt(item))"
+          [title]="day.isPast ? toAppt(item).clientName : toAppt(item).clientName + ' – לחץ לביטול'"
+          [style.cursor]="day.isPast ? 'default' : 'pointer'"
+        >
+          <span class="appt-name">{{ toAppt(item).clientName }}</span>
+          <span class="appt-time-chip">{{ toAppt(item).startTime | date:'HH:mm' }} ({{ toAppt(item).durationMinutes }}&apos;)</span>
+        </div>
+      }
+      @if (item.kind === 'free') {
+        <div
+          class="admin-free-block evening"
+          [class.past]="day.isPast"
+          (click)="!day.isPast && openBookForClientDialog(day.date, toBlock(item))"
+          [title]="day.isPast ? '' : 'לחץ לקביעת תור עבור לקוחה'"
+          [style.cursor]="day.isPast ? 'default' : 'pointer'"
+        >
+          <span>{{ formatTime(toBlock(item).start) }} – {{ formatTime(toBlock(item).end) }}</span>
+          <span class="free-label">פנוי ({{ toBlock(item).durationMinutes }}&apos;)</span>
+        </div>
+      }
+    }
+  </ng-template>
+
+</app-week-calendar>
+
+<!-- דיאלוג 1: ניהול משמרות -->
+@if (shiftDialogDay()) {
+  <app-shift-dialog
+    [date]="shiftDialogDay()!.date"
+    [existingShifts]="shiftDialogDay()!.shifts"
+    (close)="shiftDialogDay.set(null)"
+    (changed)="onShiftChanged()"
+  />
+}
+
+<!-- דיאלוג 2: ביטול תור -->
+@if (cancelAppt()) {
+  <app-cancel-confirm-dialog
+    [appointment]="cancelAppt()!"
+    [question]="'האם לבטל את התור של ' + cancelAppt()!.clientName + '?'"
+    [cancelling]="cancelling()"
+    (confirmed)="doCancel()"
+    (closed)="cancelAppt.set(null)"
+  />
+}
+
+<!-- דיאלוג 3: קביעת תור עבור לקוחה -->
+@if (bookDate() && bookBlock()) {
+  <app-booking-dialog
+    [date]="bookDate()!"
+    [block]="bookBlock()!"
+    [isAdmin]="true"
+    [prefilledName]="adminBookingState.pendingClient()?.name ?? ''"
+    [prefilledPhone]="adminBookingState.pendingClient()?.phone ?? ''"
+    (booked)="onAdminBooked()"
+    (closed)="bookDate.set(null); bookBlock.set(null)"
+  />
+}

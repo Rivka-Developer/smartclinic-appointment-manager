@@ -1,0 +1,265 @@
+/* src/app/features/admin/clients/clients.component.css */
+/* ─────────────────────────────────────────────────────────────────────────────
+  עיצוב עמוד ניהול לקוחות (Clients Styles).
+
+  מגדיר:
+    .page-header       – flex row: כותרת משמאל, חיפוש מימין
+    .search-box        – עטיפת שדה חיפוש עם אייקון עוגן
+    .search-input      – שדה קלט עם padding ימני לאייקון
+    .client-name       – flex row: אוואטר + שם לקוחה
+    .avatar            – עיגול 32px עם האות הראשונה של השם
+    .history-panel     – פאנל היסטוריה (max-width 620px)
+    .history-meta      – טלפון + מייל ברשימה אופקית
+    .history-list      – גלילה אנכית עד 400px
+    .history-item      – שורת תור: תאריך | גוף | ביטול
+    .appt-date-box     – כרטיסיית תאריך: עברי + לועזי
+    .hist-body         – flex column: שעה + משך/סטטוס
+    .cancel-date-block – תיבת פרטים בדיאלוג הביטול
+    .dialog-actions    – כפתורי פעולה (flex-end + border-top)
+    .btn-loader-dark   – ספינר לבן בתוך כפתור
+──────────────────────────────────────────────────────────────────────────────── */
+
+.page-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.page-title { font-size: 1.6rem; margin-bottom: 4px; }
+.page-sub   { color: var(--text-muted); font-size: 0.9rem; }
+
+/* תיבת חיפוש עם אייקון עוגן מימין */
+.search-box {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.search-icon {
+  position: absolute;
+  right: 12px;
+  font-size: 0.9rem;
+  pointer-events: none; /* האייקון לא חוסם לחיצות על השדה */
+}
+
+.search-input {
+  padding: 10px 36px 10px 14px; /* ריווח ימני גדול לאייקון */
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-md);
+  font-family: var(--font-body);
+  font-size: 0.9rem;
+  outline: none;
+  width: 280px;
+  transition: border-color .2s;
+
+  &:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(30,58,95,.1); }
+}
+
+/* שם לקוחה עם אוואטר עגול */
+.client-name {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+/* עיגול עם האות הראשונה של השם – צבע primary */
+.avatar {
+  width: 32px;
+  height: 32px;
+  background: var(--primary-50);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 0.9rem;
+  color: var(--primary);
+  flex-shrink: 0;
+}
+
+/* פאנל היסטוריה: רחב יותר מדיאלוג רגיל */
+.history-panel { max-width: 620px; width: 95%; }
+
+.history-meta {
+  display: flex;
+  gap: 20px;
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  margin-bottom: 20px;
+}
+
+/* רשימה גוללת עם גובה מקסימלי */
+.history-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  max-height: 400px;
+  overflow-y: auto;
+  margin-bottom: 8px;
+}
+
+.history-item {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 12px 16px;
+  background: var(--bg-light);
+  border-radius: var(--radius-md);
+  font-size: 0.875rem;
+  transition: box-shadow .2s;
+
+  &:hover { box-shadow: var(--shadow-md); }
+  &.cancelled { opacity: .55; } /* תורים מבוטלים: שקיפות */
+}
+
+/* כרטיסיית תאריך: עברי גדול + לועזי קטן */
+.appt-date-box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background: var(--primary-50);
+  border-radius: var(--radius-md);
+  padding: 8px 12px;
+  min-width: 64px;
+  flex-shrink: 0;
+}
+
+.hebrew-date-main {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--primary);
+  direction: rtl;
+  text-align: center;
+  line-height: 1.2;
+}
+
+.gregorian-sub {
+  font-size: 0.68rem;
+  color: var(--text-light);
+  text-align: center;
+}
+
+.hist-body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.hist-time {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--text-dark);
+  direction: ltr;
+  text-align: right;
+}
+
+.hist-meta {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 0.82rem;
+}
+
+.hist-dur { color: var(--text-muted); }
+
+/* ─── דיאלוג ביטול ─────────────────────────────────────────────────────────── */
+.cancel-q {
+  color: var(--text-muted);
+  margin-bottom: 14px;
+  font-size: 0.95rem;
+}
+
+.cancel-date-block {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background: var(--primary-50);
+  border-radius: var(--radius-md);
+  padding: 14px 24px;
+  margin-bottom: 8px;
+  gap: 4px;
+}
+
+.cancel-hebrew {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--primary);
+  direction: rtl;
+}
+
+.cancel-greg {
+  font-size: 0.75rem;
+  color: var(--text-light);
+}
+
+.cancel-time {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--text-dark);
+  margin-top: 4px;
+}
+
+.btn-loader-dark {
+  width: 14px; height: 14px;
+  border: 2px solid rgba(255,255,255,.4);
+  border-top-color: white;
+  border-radius: 50%;
+  animation: spin .7s linear infinite;
+  display: inline-block;
+}
+
+.dialog-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 16px;
+  border-top: 1px solid var(--border);
+  padding-top: 16px;
+}
+
+/* תא פעולות: כפתורי "היסטוריה" ו"מחיקה" זה לצד זה */
+.actions-cell {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+/* כפתור אייקון מחיקה בלבד */
+.btn-icon-danger {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border: none;
+  border-radius: var(--radius-md);
+  background: transparent;
+  color: var(--danger, #dc2626);
+  cursor: pointer;
+  transition: background .15s, color .15s;
+
+  &:hover { background: rgba(220, 38, 38, 0.1); }
+  &:active { background: rgba(220, 38, 38, 0.2); }
+}
+
+/* פאנל דיאלוג אישור מחיקה */
+.delete-confirm-panel { max-width: 440px; width: 95%; }
+
+.delete-confirm-text {
+  font-size: 1rem;
+  margin-bottom: 10px;
+}
+
+.delete-confirm-warning {
+  font-size: 0.875rem;
+  color: var(--danger, #dc2626);
+  background: rgba(220, 38, 38, 0.07);
+  border-radius: var(--radius-md);
+  padding: 10px 14px;
+  margin-bottom: 4px;
+}

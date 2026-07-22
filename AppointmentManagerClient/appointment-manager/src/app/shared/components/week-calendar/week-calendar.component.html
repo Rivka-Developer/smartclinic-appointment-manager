@@ -1,0 +1,96 @@
+<div class="page-wrapper">
+
+  <div class="page-header">
+    <div>
+      <h1 class="page-title">{{ title }}</h1>
+      <p class="page-sub">{{ subtitle }}</p>
+    </div>
+    <div class="week-nav">
+      <button class="btn btn-outline btn-sm" (click)="prevWeek()" [disabled]="!canGoPrev() || loading">❯</button>
+      <div class="week-label-wrap">
+        <span class="week-label-hebrew">{{ hebrewWeekLabel() }}</span>
+        <span class="week-label">{{ weekLabel() }}</span>
+      </div>
+      <button class="btn btn-outline btn-sm" (click)="nextWeek()" [disabled]="!canGoNext() || loading">❮</button>
+    </div>
+  </div>
+
+  <app-spinner [show]="loading" [text]="spinnerText" />
+
+  @if (!loading) {
+    <div class="cal-card card">
+      <div class="week-grid">
+
+        <!-- שורה 1: כותרות ימים -->
+        @for (day of internalWeekDays(); track day.date; let i = $index) {
+          <div
+            class="day-header"
+            [class.first-col]="i === 0"
+            [class.today]="day.isToday"
+            [class.past]="day.isPast"
+            [class.weekend]="day.isWeekend"
+            (click)="onDayHeaderClick(day, i)"
+            [style.cursor]="dayHeaderClick.observed && !day.isPast && !day.isWeekend ? 'pointer' : 'default'"
+          >
+            <span class="day-name">{{ day.label }}</span>
+            <span class="day-hebrew">{{ day.hebrewDate }}</span>
+            <span class="day-gregorian">{{ day.date | date:'d/M' }}</span>
+            @if (day.holidays.length > 0) {
+              <div class="holiday-row">
+                @for (h of day.holidays; track h) {
+                  <span class="holiday-tag">{{ h }}</span>
+                }
+              </div>
+            }
+            @if (dayHeaderExtraTpl) {
+              <ng-container
+                [ngTemplateOutlet]="dayHeaderExtraTpl"
+                [ngTemplateOutletContext]="{ $implicit: day, index: i }"
+              ></ng-container>
+            }
+          </div>
+        }
+
+        <!-- שורה 2: בוקר -->
+        @for (day of internalWeekDays(); track day.date; let i = $index) {
+          <div
+            class="day-morning"
+            [class.first-col]="i === 0"
+            [class.weekend]="day.isWeekend"
+          >
+            @if (dayMorningTpl) {
+              <ng-container
+                [ngTemplateOutlet]="dayMorningTpl"
+                [ngTemplateOutletContext]="{ $implicit: day, index: i }"
+              ></ng-container>
+            }
+          </div>
+        }
+
+        <!-- שורה 3: ערב (אופציונלי) -->
+        @if (hasAnyEvening) {
+          <div class="period-divider-row"></div>
+          @for (day of internalWeekDays(); track day.date; let i = $index) {
+            <div
+              class="day-evening"
+              [class.first-col]="i === 0"
+              [class.weekend]="day.isWeekend"
+            >
+              @if (dayEveningTpl) {
+                <ng-container
+                  [ngTemplateOutlet]="dayEveningTpl"
+                  [ngTemplateOutletContext]="{ $implicit: day, index: i }"
+                ></ng-container>
+              }
+            </div>
+          }
+        }
+
+      </div>
+    </div>
+  }
+
+  <!-- תוכן נוסף מה-parent (empty-state וכו') -->
+  <ng-content></ng-content>
+
+</div>

@@ -1,0 +1,120 @@
+<!-- src/app/features/client/home/client-home.component.html -->
+<!-- ─────────────────────────────────────────────────────────────────────────────
+  תבנית דף הבית של הלקוחה (Client Home Template).
+
+  מבנה:
+    .home-page
+      .hero           – פס כחול עם ברכה אישית לפי שם הלקוחה
+      .page-wrapper
+        .actions-grid – 2 כרטיסי ניווט: "קביעת תור" ו-"התורים שלי"
+        .features     – קטע "איך זה עובד?" עם 3 שלבים
+
+  כל הניווט נעשה עם routerLink – אין HTTP calls בדף זה.
+──────────────────────────────────────────────────────────────────────────────── -->
+
+<div class="home-page">
+
+  <!-- Hero Section: ברכה אישית + תיאור המערכת -->
+  <div class="hero">
+    <div class="container">
+      <div class="hero-inner">
+        <div class="hero-badge">ברוכה הבאה</div>
+        <!-- {{ user()?.fullName }} – מציג את שם המשתמשת המחוברת מה-Signal -->
+        <h1 class="hero-title">{{ user()?.fullName }}</h1>
+        <p class="hero-desc">
+          מערכת ניהול התורים מאפשרת לך לקבוע תורים בקלות, לצפות בתורים הקרובים שלך
+          ולנהל את הביקורים שלך במקום אחד נוח ומסודר.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <div class="page-wrapper">
+
+    <h2 class="section-title">מה תרצי לעשות?</h2>
+
+    <!-- רשת כרטיסי פעולה: שני כרטיסים ניווטיים -->
+    <div class="actions-grid">
+
+      <!-- כרטיס: קביעת תור חדש → מנווט ל-/client/new-appointment -->
+      <a routerLink="/client/new-appointment" class="action-card card">
+        <div class="action-icon accent-icon">
+          <!-- אייקון לוח שנה עם פלוס -->
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+            <rect x="3" y="4" width="18" height="18" rx="3"/>
+            <line x1="16" y1="2" x2="16" y2="6"/>
+            <line x1="8"  y1="2" x2="8"  y2="6"/>
+            <line x1="3" y1="10" x2="21" y2="10"/>
+            <line x1="12" y1="15" x2="12" y2="19"/>
+            <line x1="10" y1="17" x2="14" y2="17"/>
+          </svg>
+        </div>
+        <h3 class="action-title">קביעת תור חדש</h3>
+        <p class="action-desc">בחרי תאריך ושעה מתוך השעות הפנויות ואשרי את התור.</p>
+        <span class="btn btn-accent">לקביעת תור</span>
+      </a>
+
+      <!-- כרטיס: התורים שלי → מנווט ל-/client/my-appointments -->
+      <a routerLink="/client/my-appointments" class="action-card card">
+        <div class="action-icon primary-icon">
+          <!-- אייקון צ'קבוקס עם וי -->
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+            <path d="M9 11l3 3L22 4"/>
+            <path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/>
+          </svg>
+        </div>
+        <h3 class="action-title">התורים שלי</h3>
+        <p class="action-desc">צפי בתורים הקרובים והעבר שלך, ובטלי תור בקלות.</p>
+        <span class="btn btn-primary">לתורים שלי</span>
+      </a>
+
+      <!-- כרטיס: לוח העברת תורים → מנווט ל-/client/swap-board -->
+      <a routerLink="/client/swap-board" class="action-card card">
+        <div class="action-icon accent-icon">
+          <!-- אייקון חצים החלפה -->
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+            <path d="M7 16V4m0 0L3 8m4-4l4 4"/>
+            <path d="M17 8v12m0 0l4-4m-4 4l-4-4"/>
+          </svg>
+        </div>
+        <h3 class="action-title">תורים פנויים</h3>
+        <p class="action-desc">לא יכולה להגיע לתור? פרסמי אותו. צריכה תור דחוף? קחי תור שמישהי שחררה.</p>
+        <span class="btn btn-accent">לתורים פנויים</span>
+      </a>
+
+    </div>
+
+    <!-- קטע הסבר: שלושה שלבים לקביעת תור -->
+    <div class="features card">
+      <h2 class="features-title">איך זה עובד?</h2>
+      <div class="features-grid">
+
+        <div class="feature-item">
+          <div class="feature-num">1</div>
+          <div>
+            <h4>בחרי תאריך</h4>
+            <p>גללי בלוח השבועי ובחרי יום שמתאים לך.</p>
+          </div>
+        </div>
+
+        <div class="feature-item">
+          <div class="feature-num">2</div>
+          <div>
+            <h4>בחרי שעה</h4>
+            <p>בחרי מתוך הבלוקים הפנויים את השעה הנוחה לך.</p>
+          </div>
+        </div>
+
+        <div class="feature-item">
+          <div class="feature-num">3</div>
+          <div>
+            <h4>אשרי ותגיעי</h4>
+            <p>התור נקבע ויחכה לך. ניתן לבטל עד 24 שעות לפני.</p>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+</div>

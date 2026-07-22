@@ -1,0 +1,30 @@
+<!-- src/app/shared/components/empty-state/empty-state.component.html -->
+<!-- ─────────────────────────────────────────────────────────────────────────────
+  תבנית רכיב מצב ריק (Empty State Template).
+
+  מבנה:
+    .empty-state  – מיכל ממורכז אנכית ואופקית
+      .empty-icon – אייקון גדול (56px) בשקיפות חלקית
+      h3          – כותרת ראשית
+      p           – תיאור/הסבר
+      button      – כפתור פעולה אופציונלי (מוצג רק אם actionLabel הועבר)
+
+  Inputs: icon, title, description, actionLabel
+  Output: (action) – נפלט בלחיצה על הכפתור
+──────────────────────────────────────────────────────────────────────────────── -->
+
+<div class="empty-state">
+  <!-- אייקון גדול (56px) עם שקיפות להדגשה עדינה -->
+  <div class="empty-icon">
+    <app-icon [name]="icon" [size]="56" [strokeWidth]="1.5"></app-icon>
+  </div>
+  <h3 class="empty-title">{{ title }}</h3>
+  <p class="empty-desc">{{ description }}</p>
+  <!-- כפתור פעולה: מוצג רק אם הועבר actionLabel -->
+ @if(actionLabel)
+ {
+  <button  class="btn btn-accent btn-lg" (click)="action.emit()">
+    {{ actionLabel }}
+  </button>
+ } 
+</div>
