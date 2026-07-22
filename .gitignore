@@ -42,3 +42,8 @@ appsettings.Development.json
 # --- Logs ---
 logs/
 *.log
+
+# --- Local-only files ---
+CLAUDE.md
+.claude/
+*.docx
