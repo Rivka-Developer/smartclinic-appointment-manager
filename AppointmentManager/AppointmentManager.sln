@@ -1,0 +1,48 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.14.36717.8
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AppointmentManager.Domain", "AppointmentManager.Domain\AppointmentManager.Domain.csproj", "{5D2FFF9F-868F-41B6-A06B-F11CFB8120E9}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AppointmentManager.Application", "AppointmentManager.Application\AppointmentManager.Application.csproj", "{62E2B76C-995E-4A55-A568-6FE3CA0218F3}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AppointmentManager.Infrastructure", "AppointmentManager.Infrastructure\AppointmentManager.Infrastructure.csproj", "{84A2EAF9-EBA6-401A-B2F5-69E883481BC8}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AppointmentManager.Api", "AppointmentManager.Api\AppointmentManager.Api.csproj", "{DAC45EA4-65FA-49DE-9FC4-5344FC507201}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{8EC462FD-D22E-90A8-E5CE-7E832BA40C5D}"
+	ProjectSection(SolutionItems) = preProject
+		.gitignore = .gitignore
+	EndProjectSection
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{5D2FFF9F-868F-41B6-A06B-F11CFB8120E9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5D2FFF9F-868F-41B6-A06B-F11CFB8120E9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5D2FFF9F-868F-41B6-A06B-F11CFB8120E9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5D2FFF9F-868F-41B6-A06B-F11CFB8120E9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{62E2B76C-995E-4A55-A568-6FE3CA0218F3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{62E2B76C-995E-4A55-A568-6FE3CA0218F3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{62E2B76C-995E-4A55-A568-6FE3CA0218F3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{62E2B76C-995E-4A55-A568-6FE3CA0218F3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{84A2EAF9-EBA6-401A-B2F5-69E883481BC8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{84A2EAF9-EBA6-401A-B2F5-69E883481BC8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{84A2EAF9-EBA6-401A-B2F5-69E883481BC8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{84A2EAF9-EBA6-401A-B2F5-69E883481BC8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DAC45EA4-65FA-49DE-9FC4-5344FC507201}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DAC45EA4-65FA-49DE-9FC4-5344FC507201}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DAC45EA4-65FA-49DE-9FC4-5344FC507201}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DAC45EA4-65FA-49DE-9FC4-5344FC507201}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {7F3C451E-E838-42D6-98BF-3236F1EBAF0C}
+	EndGlobalSection
+EndGlobal
