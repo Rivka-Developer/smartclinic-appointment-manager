@@ -49,6 +49,17 @@ public class AppointmentServiceTests
     // _usersMock = Mock של IUserRepository - מחקה שאילתות משתמשים
     private readonly Mock<IUserRepository> _usersMock = new();
 
+    /// <summary>
+    /// מחזירה תאריך עתידי שאינו שישי/שבת (המערכת חוסמת תורים בימים אלה).
+    /// נחוץ כדי שהבדיקות לא ייכשלו בהתאם ליום הריצה בפועל.
+    /// </summary>
+    private static DateTime NextBookableDate(DateTime from)
+    {
+        while (from.DayOfWeek == DayOfWeek.Friday || from.DayOfWeek == DayOfWeek.Saturday)
+            from = from.AddDays(1);
+        return from;
+    }
+
     // _settingsMock = Mock של ISettingsRepository - מחקה הגדרות מערכת
     private readonly Mock<ISettingsRepository> _settingsMock = new();
 
@@ -164,7 +175,7 @@ public class AppointmentServiceTests
     public async Task BookAppointmentAsync_SlotNotAvailable_ReturnsConflict()
     {
         // === Arrange ===
-        var futureDate = DateTime.UtcNow.AddDays(1);
+        var futureDate = NextBookableDate(DateTime.UtcNow.AddDays(1));
         var app = new Appointment
         {
             StartTime = new DateTime(futureDate.Year, futureDate.Month, futureDate.Day, 10, 0, 0, DateTimeKind.Utc),
@@ -195,7 +206,7 @@ public class AppointmentServiceTests
     public async Task BookAppointmentAsync_ValidSlot_ReturnsSuccess()
     {
         // === Arrange ===
-        var futureDate = DateTime.UtcNow.AddDays(1);
+        var futureDate = NextBookableDate(DateTime.UtcNow.AddDays(1));
         var clientId = Guid.NewGuid();
         var app = new Appointment
         {
@@ -240,7 +251,7 @@ public class AppointmentServiceTests
     public async Task BookAppointmentAsync_TooLongDuration_ReturnsTooLongError()
     {
         // === Arrange ===
-        var futureDate = DateTime.UtcNow.AddDays(1);
+        var futureDate = NextBookableDate(DateTime.UtcNow.AddDays(1));
         var app = new Appointment
         {
             // 10:00 = שעות בוקר → מקסימום 120 דקות (לפי DefaultSettings)

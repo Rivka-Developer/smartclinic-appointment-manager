@@ -39,5 +39,17 @@ namespace AppointmentManager.Application.Interfaces
         /// Result.Failure עם AuthErrors.InvalidCredentials אם האימייל/סיסמה שגויים.
         /// </returns>
         Task<Result<AuthResponse>> LoginAsync(LoginRequest request);
+
+        /// <summary>
+        /// מבצע התחברות (או הרשמה אוטומטית) עם חשבון Google.
+        /// מאמת את ה-ID Token מול Google, ולפי האימייל: מקשר משתמש קיים
+        /// או יוצר משתמש Client חדש ללא סיסמה.
+        /// </summary>
+        /// <param name="request">ה-ID Token שהתקבל מ-Google Identity Services בצד הלקוח</param>
+        /// <returns>
+        /// Result.Success עם AuthResponse (Token + שם + תפקיד) אם ההתחברות הצליחה.
+        /// Result.Failure עם AuthErrors.InvalidGoogleToken אם ה-Token לא תקין.
+        /// </returns>
+        Task<Result<AuthResponse>> GoogleLoginAsync(GoogleLoginRequest request);
     }
 }

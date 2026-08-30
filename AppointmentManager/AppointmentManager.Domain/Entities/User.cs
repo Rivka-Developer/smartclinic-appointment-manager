@@ -51,8 +51,15 @@ namespace AppointmentManager.Domain.Entities
         /// הסיסמה המוצפנת (Hash).
         /// הסיסמה המקורית לא נשמרת - רק גרסה מוצפנת שלה באמצעות BCrypt.
         /// BCrypt הוא אלגוריתם הצפנה חד-כיווני: ניתן לאמת סיסמה אבל לא לפענח אותה.
+        /// null אצל משתמשים שנרשמו/התחברו רק דרך Google (אין להם סיסמה במערכת).
         /// </summary>
-        public string PasswordHash { get; set; } = default!;
+        public string? PasswordHash { get; set; }
+
+        /// <summary>
+        /// המזהה הייחודי של המשתמש אצל Google (ה-Claim "sub" מתוך ה-ID Token).
+        /// null אצל משתמשים שנרשמו רק עם אימייל+סיסמה ולא קישרו חשבון Google.
+        /// </summary>
+        public string? GoogleId { get; set; }
 
         /// <summary>
         /// תפקיד המשתמש במערכת: Admin, Client, או ManagedClient.

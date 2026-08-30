@@ -96,6 +96,9 @@
       </button>
     </form>
 
+    <div class="auth-divider">או</div>
+    <app-google-signin-button (googleToken)="onGoogleLogin($event)" />
+
     <!-- קישור לדף הכניסה למי שכבר רשומה -->
     <p class="auth-footer">
       כבר רשומה?

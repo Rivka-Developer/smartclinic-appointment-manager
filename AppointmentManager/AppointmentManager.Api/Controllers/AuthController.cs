@@ -29,6 +29,15 @@ namespace AppointmentManager.Api.Controllers
             return Ok(new { result.Value.FullName, result.Value.Role });
         }
 
+        [HttpPost("google")]
+        public async Task<IActionResult> Google([FromBody] GoogleLoginRequest request)
+        {
+            var result = await authService.GoogleLoginAsync(request);
+            if (!result.IsSuccess) return result.ToActionResult();
+            SetAuthCookie(result.Value.Token);
+            return Ok(new { result.Value.FullName, result.Value.Role });
+        }
+
         [HttpPost("logout")]
         public IActionResult Logout()
         {
@@ -43,7 +52,9 @@ namespace AppointmentManager.Api.Controllers
             {
                 HttpOnly = true,
                 Secure = !isDev,                          // Secure רק בייצור
-                SameSite = isDev ? SameSiteMode.Lax : SameSiteMode.Strict,
+                // SameSite=None נדרש בייצור כי ה-Frontend (Static Web Apps) וה-API (App Service)
+                // יושבים על דומיינים שונים — קוקי Strict/Lax לא היה נשלח בבקשות cross-site
+                SameSite = isDev ? SameSiteMode.Lax : SameSiteMode.None,
                 Expires = DateTimeOffset.UtcNow.AddHours(2)
             });
         }

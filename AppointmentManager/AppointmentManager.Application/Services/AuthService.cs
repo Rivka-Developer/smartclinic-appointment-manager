@@ -16,6 +16,7 @@ using AppointmentManager.Domain;
 using AppointmentManager.Domain.Entities;
 using AppointmentManager.Domain.Interfaces;
 using AppointmentManager.Domain.Common;
+using Google.Apis.Auth;                   // לאימות ID Token מול Google
 using Microsoft.Extensions.Configuration; // לקריאת הגדרות מ-appsettings.json
 using Microsoft.IdentityModel.Tokens;     // ל-SymmetricSecurityKey ו-SigningCredentials
 using BC = BCrypt.Net.BCrypt;             // כינוי קצר לספריית BCrypt לצורך הצפנת סיסמאות
@@ -76,13 +77,63 @@ public class AuthService(IUnitOfWork uow, IConfiguration config) : IAuthService
         // בדיקת קיום המשתמש ואימות הסיסמה
         // BC.Verify = בודק אם הסיסמה שהוזנה תואמת ל-Hash השמור
         // (לא ניתן "לפענח" Hash - רק לאמת)
-        if (user == null || !BC.Verify(request.Password, user.PasswordHash))
+        // PasswordHash == null אצל משתמשים שנרשמו רק דרך Google - אין להם סיסמה לאמת מולה.
+        if (user == null || user.PasswordHash == null || !BC.Verify(request.Password, user.PasswordHash))
             return Result.Failure<AuthResponse>(AuthErrors.InvalidCredentials); // שגיאה כללית (לא מפרטים מה שגוי)
 
         // יצירת Token
         var token = GenerateJwtToken(user);
         var response = new AuthResponse(token, user.FullName, user.Role.ToString());
 
+        return Result.Success(response);
+    }
+
+    /// <summary>
+    /// מתחבר (או נרשם אוטומטית) עם חשבון Google.
+    /// </summary>
+    public async Task<Result<AuthResponse>> GoogleLoginAsync(GoogleLoginRequest request)
+    {
+        GoogleJsonWebSignature.Payload payload;
+        try
+        {
+            // אימות ה-ID Token מול שרתי Google: בודק חתימה, תוקף, ושה-Audience תואם ל-Client ID שלנו.
+            payload = await GoogleJsonWebSignature.ValidateAsync(request.IdToken, new GoogleJsonWebSignature.ValidationSettings
+            {
+                Audience = new[] { config["Authentication:Google:ClientId"]! }
+            });
+        }
+        catch (InvalidJwtException)
+        {
+            return Result.Failure<AuthResponse>(AuthErrors.InvalidGoogleToken);
+        }
+
+        // חיפוש משתמש קיים לפי אימייל - אם נרשם בעבר עם סיסמה, מקשרים את חשבון Google אליו.
+        var user = await uow.Users.GetByEmailAsync(payload.Email);
+
+        if (user == null)
+        {
+            // משתמש חדש - נוצר כ-Client רגיל, ללא סיסמה.
+            user = new User
+            {
+                FullName = payload.Name ?? payload.Email,
+                Email = payload.Email,
+                PhoneNumber = string.Empty,
+                PasswordHash = null,
+                GoogleId = payload.Subject,
+                Role = UserRole.Client
+            };
+            await uow.Users.AddAsync(user);
+            await uow.SaveChangesAsync();
+        }
+        else if (user.GoogleId == null)
+        {
+            // משתמש קיים שנרשם עם סיסמה - קישור חשבון Google אליו.
+            user.GoogleId = payload.Subject;
+            await uow.SaveChangesAsync();
+        }
+
+        var token = GenerateJwtToken(user);
+        var response = new AuthResponse(token, user.FullName, user.Role.ToString());
         return Result.Success(response);
     }
 

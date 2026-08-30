@@ -6,7 +6,7 @@ import {
   Component, OnInit, ChangeDetectionStrategy,
   inject, signal, computed, DestroyRef
 } from '@angular/core';
-import { ActivatedRoute, RouterLink } from '@angular/router';
+import { ActivatedRoute } from '@angular/router';
 import { SwapOffersService } from '../../../core/services/swap-offers.service';
 import { AppointmentsService } from '../../../core/services/appointments.service';
 import { AuthService } from '../../../core/services/auth.service';
@@ -23,7 +23,7 @@ import { SwapAcceptDialogComponent } from '../../../shared/components/swap-accep
   changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'app-swap-board',
   standalone: true,
-  imports: [RouterLink, SpinnerComponent, EmptyStateComponent, IconComponent, SwapAcceptDialogComponent],
+  imports: [SpinnerComponent, EmptyStateComponent, IconComponent, SwapAcceptDialogComponent],
   templateUrl: './swap-board.component.html',
   styleUrls: ['./swap-board.component.css']
 })

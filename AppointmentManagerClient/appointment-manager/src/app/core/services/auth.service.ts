@@ -2,7 +2,7 @@ import { Injectable, signal, computed, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { Observable, tap } from 'rxjs';
-import { AuthResponse, LoginRequest, RegisterRequest } from '../models';
+import { AuthResponse, GoogleLoginRequest, LoginRequest, RegisterRequest } from '../models';
 import { environment } from '../../../environments/environment';
 
 @Injectable({ providedIn: 'root' })
@@ -34,6 +34,13 @@ export class AuthService {
   register(body: RegisterRequest): Observable<AuthResponse> {
     return this.http.post<AuthResponse>(`${this.BASE}/register`, body).pipe(
       tap(res => this._persistUser(res))
+    );
+  }
+
+  loginWithGoogle(idToken: string): Observable<AuthResponse> {
+    const body: GoogleLoginRequest = { idToken };
+    return this.http.post<AuthResponse>(`${this.BASE}/google`, body).pipe(
+      tap(res => this._persist(res))
     );
   }
 

@@ -12,7 +12,7 @@ public class ChatBotService(
     IConfiguration configuration,
     ILogger<ChatBotService> logger) : IChatBotService
 {
-    private const string ModelPath = "v1/models/gemini-1.5-flash:generateContent";
+    private const string ModelPath = "v1/models/gemini-3.6-flash:generateContent";
 
     private const string SystemPrompt = """
         אתה עוזר וירטואלי של קליניקה SmartClinic. תפקידך לסייע ללקוחות בכל שאלה הנוגעת לקביעת תורים, ביטולם, ושעות הפעילות.

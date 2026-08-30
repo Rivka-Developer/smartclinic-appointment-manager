@@ -12,6 +12,11 @@ export interface RegisterRequest {
   password: string;
 }
 
+/** נתוני התחברות עם Google – נשלחים ב-POST /auth/google */
+export interface GoogleLoginRequest {
+  idToken: string;
+}
+
 /**
  * תשובת השרת לאחר כניסה/הרשמה מוצלחת.
  * ה-JWT נשמר ב-HttpOnly Cookie בלבד (לא נשלח ל-JavaScript).

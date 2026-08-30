@@ -43,5 +43,11 @@ namespace AppointmentManager.Domain.Common
         /// ErrorType.NotFound = HTTP 404 Not Found.
         /// </summary>
         public static Error UserNotFound => Error.NotFound("Auth.UserNotFound", "המשתמש המבוקש לא נמצא במערכת.");
+
+        /// <summary>
+        /// שגיאה: ה-ID Token שהתקבל מ-Google לא תקין (פג תוקף, מזויף, או מיועד ל-Client ID אחר).
+        /// ErrorType.Unauthorized = HTTP 401 Unauthorized.
+        /// </summary>
+        public static Error InvalidGoogleToken => Error.Unauthorized("Auth.InvalidGoogleToken", "אימות מול Google נכשל.");
     }
 }

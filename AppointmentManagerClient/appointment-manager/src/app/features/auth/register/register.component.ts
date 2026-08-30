@@ -19,12 +19,13 @@ import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
 import { SnackService } from '../../../core/services/snack.service';
 import { PolicyModalComponent } from '../../../shared/components/policy-modal/policy-modal.component';
+import { GoogleSigninButtonComponent } from '../../../shared/components/google-signin-button/google-signin-button.component';
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'app-register',
   standalone: true,
-  imports: [ReactiveFormsModule, RouterLink, PolicyModalComponent],
+  imports: [ReactiveFormsModule, RouterLink, PolicyModalComponent, GoogleSigninButtonComponent],
   templateUrl: './register.component.html',
   styleUrls: ['../auth.shared.css', './register.component.css']
 })
@@ -80,5 +81,12 @@ export class RegisterComponent {
 
   onPolicyAccepted(): void {
     this.router.navigate(['/client/home']);
+  }
+
+  /** נקרא לאחר שהמשתמש בחר חשבון Google; הניתוב נעשה אוטומטית ב-_persist() */
+  onGoogleLogin(idToken: string): void {
+    this.auth.loginWithGoogle(idToken).subscribe({
+      error: () => this.snack.error('ההתחברות עם Google נכשלה')
+    });
   }
 }

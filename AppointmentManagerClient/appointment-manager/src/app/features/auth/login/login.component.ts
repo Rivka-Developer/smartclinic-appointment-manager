@@ -19,6 +19,7 @@ import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
 import { SnackService } from '../../../core/services/snack.service';
+import { GoogleSigninButtonComponent } from '../../../shared/components/google-signin-button/google-signin-button.component';
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -26,7 +27,8 @@ import { SnackService } from '../../../core/services/snack.service';
   standalone: true,
   imports: [
     ReactiveFormsModule,
-    RouterLink
+    RouterLink,
+    GoogleSigninButtonComponent
   ],
   templateUrl: './login.component.html',
   styleUrls: ['../auth.shared.css', './login.component.css']
@@ -68,6 +70,13 @@ export class LoginComponent {
         this.snack.error('אימייל או סיסמה שגויים');
         this.loading.set(false); // מכבים spinner כדי לאפשר ניסיון נוסף
       }
+    });
+  }
+
+  /** נקרא לאחר שהמשתמש בחר חשבון Google; הניתוב נעשה אוטומטית ב-_persist() */
+  onGoogleLogin(idToken: string): void {
+    this.auth.loginWithGoogle(idToken).subscribe({
+      error: () => this.snack.error('ההתחברות עם Google נכשלה')
     });
   }
 }
