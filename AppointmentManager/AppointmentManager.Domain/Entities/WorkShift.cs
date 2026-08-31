@@ -49,10 +49,11 @@ namespace AppointmentManager.Domain.Entities
 
         /// <summary>
         /// שדה גרסה לבקרת מקביליות (Optimistic Concurrency Token).
-        /// [Timestamp] מגדיר ש-SQL Server יעדכן שדה זה אוטומטית בכל שמירה.
+        /// [Timestamp] על uint גורם ל-Npgsql למפות את השדה לעמודת המערכת xmin
+        /// (מתעדכנת אוטומטית ע"י Postgres בכל שינוי שורה - אין עמודה פיזית).
         /// מונע עדכון משמרת על ידי שני משתמשים בו-זמנית.
         /// </summary>
         [Timestamp]
-        public byte[] RowVersion { get; set; } = default!;
+        public uint RowVersion { get; set; }
     }
 }

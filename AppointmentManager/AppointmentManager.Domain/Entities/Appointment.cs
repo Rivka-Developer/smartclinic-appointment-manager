@@ -61,13 +61,13 @@ namespace AppointmentManager.Domain.Entities
 
         /// <summary>
         /// שדה גרסה לבקרת מקביליות (Optimistic Concurrency Token).
-        /// [Timestamp] מגדיר ש-SQL Server יעדכן שדה זה אוטומטית בכל שמירה.
+        /// [Timestamp] על uint גורם ל-Npgsql למפות את השדה לעמודת המערכת xmin
+        /// (מתעדכנת אוטומטית ע"י Postgres בכל שינוי שורה - אין עמודה פיזית).
         /// אם שני משתמשים מנסים לשנות את אותו תור בו-זמנית,
         /// הגרסאות לא יתאימו ותיזרק ConcurrencyConflictException.
-        /// byte[] = מערך בייטים (0-255) המייצג בינארי.
         /// </summary>
         [Timestamp]
-        public byte[] RowVersion { get; set; } = default!;
+        public uint RowVersion { get; set; }
 
         /// <summary>
         /// זמן שליחת תזכורת האימייל. null = טרם נשלחה.

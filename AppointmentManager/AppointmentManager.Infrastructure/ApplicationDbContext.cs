@@ -86,8 +86,7 @@ namespace AppointmentManager.Infrastructure
                 // מניעת הזמנות כפולות: שני תורים פעילים (Scheduled=0) לא יכולים להתחיל באותו זמן
                 entity.HasIndex(a => new { a.StartTime, a.Status })
                       .IsUnique()
-                      .HasFilter("[Status] = 0");
-
+                      .HasFilter("\"Status\" = 0");
 
                 entity.HasOne(a => a.Client)
                       .WithMany(u => u.Appointments)
@@ -137,7 +136,7 @@ namespace AppointmentManager.Infrastructure
                 // אינדקס חלקי ייחודי: תור אחד יכול לקבל הצעה Active אחת בלבד
                 entity.HasIndex(o => new { o.AppointmentId, o.Status })
                       .IsUnique()
-                      .HasFilter("[Status] = 0");
+                      .HasFilter("\"Status\" = 0");
 
                 entity.HasIndex(o => o.Status);
             });

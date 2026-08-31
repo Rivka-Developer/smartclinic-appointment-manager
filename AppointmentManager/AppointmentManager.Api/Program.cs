@@ -22,9 +22,10 @@ using AppointmentManager.Infrastructure;
 using AppointmentManager.Infrastructure.Repositories;
 using AppointmentManager.Infrastructure.Services;
 using Hangfire;                                        // לניהול משימות רקע
+using Hangfire.PostgreSql;                              // אחסון Hangfire על PostgreSQL
 using Microsoft.AspNetCore.Authentication.JwtBearer;  // לאימות JWT
 using AutoMapper;
-using Microsoft.EntityFrameworkCore;                  // לחיבור SQL Server
+using Microsoft.EntityFrameworkCore;                  // לחיבור PostgreSQL
 using Microsoft.IdentityModel.Tokens;                 // לאמצעי אבטחת JWT
 using Microsoft.OpenApi.Models;                        // להגדרת Swagger
 using Serilog;                                         // לרישום לוגים
@@ -55,9 +56,9 @@ if (string.IsNullOrWhiteSpace(jwtKey) || jwtKey.Length < 32)
 
 // ===== 1. הגדרת בסיס הנתונים =====
 // AddDbContext = רישום ApplicationDbContext כ-Scoped Service
-// UseSqlServer = שימוש ב-SQL Server (Connection String מה-appsettings)
+// UseNpgsql = שימוש ב-PostgreSQL (Connection String מה-appsettings)
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 // ===== 2. רישום ה-Repositories =====
 // AddScoped = מופע חדש לכל HTTP Request (מחיקה בסוף הבקשה)
@@ -220,12 +221,14 @@ builder.Services.AddRateLimiter(options =>
 });
 
 // ===== 11. הגדרת Hangfire (משימות רקע) =====
+#pragma warning disable CS0618 // UsePostgreSqlStorage(connectionString) יוסר ב-2.0 לטובת עומס-יתר עם IConnectionFactory; ה-API הנוכחי עדיין תקין ונתמך
 builder.Services.AddHangfire(configuration => configuration
     .SetDataCompatibilityLevel(CompatibilityLevel.Version_180)
     .UseSimpleAssemblyNameTypeSerializer()
     .UseRecommendedSerializerSettings()
-    .UseSqlServerStorage(builder.Configuration.GetConnectionString("DefaultConnection"))
+    .UsePostgreSqlStorage(builder.Configuration.GetConnectionString("DefaultConnection"))
     .UseFilter(new Hangfire.AutomaticRetryAttribute { Attempts = 3, DelaysInSeconds = [60, 300, 900] }));
+#pragma warning restore CS0618
 
 builder.Services.AddHangfireServer();
 

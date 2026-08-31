@@ -1,0 +1,18 @@
+services:
+  # Postgres מקומי לפיתוח בלבד — לא בשימוש בייצור (שם נעשה שימוש ב-Neon).
+  postgres:
+    image: postgres:16
+    container_name: smartclinic-postgres-dev
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: SmartClinicDB
+      POSTGRES_USER: smartclinic
+      POSTGRES_PASSWORD: devpassword
+    ports:
+      # 5433 בצד המחשב (host) כי 5432 כבר תפוס ע"י קונטיינר Postgres של פרויקט אחר במחשב הזה
+      - "5433:5432"
+    volumes:
+      - smartclinic-postgres-data:/var/lib/postgresql/data
+
+volumes:
+  smartclinic-postgres-data:
