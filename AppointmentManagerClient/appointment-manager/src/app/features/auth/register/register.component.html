@@ -75,6 +75,7 @@
           formControlName="password"
           placeholder="לפחות 6 תווים"
           dir="ltr"
+          autocomplete="new-password"
         />
         @if (form.get('password')?.invalid && form.get('password')?.touched) {
           <span class="form-error">סיסמה חייבת להכיל לפחות 6 תווים</span>
