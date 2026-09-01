@@ -7,6 +7,7 @@
 // =====================================
 
 using AppointmentManager.Application.DTOs;
+using AppointmentManager.Application.Helpers;
 using AppointmentManager.Application.Interfaces;
 using AppointmentManager.Domain.Entities;
 using AppointmentManager.Domain.Interfaces;
@@ -45,6 +46,9 @@ public class WorkShiftService(IUnitOfWork uow, IMapper mapper) : IWorkShiftServi
         // בדיקת null - Error.NullValue הוגדר ב-Error.cs
         if (request == null) return Result.Failure(Error.NullValue);
 
+        // Model Binding מ-JSON נותן Kind=Unspecified, ו-Postgres דורש Kind=Utc
+        request = request with { Date = DateTimeHelpers.AsUtc(request.Date) };
+
         // בדיקה: אין משמרות בשישי ושבת
         if (request.Date.DayOfWeek == DayOfWeek.Friday || request.Date.DayOfWeek == DayOfWeek.Saturday)
             return Result.Failure(WorkShiftErrors.WeekendNotAllowed);
@@ -80,6 +84,9 @@ public class WorkShiftService(IUnitOfWork uow, IMapper mapper) : IWorkShiftServi
     public async Task<Result> UpdateWorkShiftAsync(Guid id, WorkShiftRequest request)
     {
         if (request == null) return Result.Failure(Error.NullValue);
+
+        // Model Binding מ-JSON נותן Kind=Unspecified, ו-Postgres דורש Kind=Utc
+        request = request with { Date = DateTimeHelpers.AsUtc(request.Date) };
 
         // בדיקה: אין משמרות בשישי ושבת
         if (request.Date.DayOfWeek == DayOfWeek.Friday || request.Date.DayOfWeek == DayOfWeek.Saturday)

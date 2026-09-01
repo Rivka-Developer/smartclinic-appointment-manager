@@ -36,4 +36,12 @@ public static class DateTimeHelpers
         // לדוגמה: דקה=13, rem=3, הוסף 5-3=2 דקות → דקה=15
         return rem == 0 ? truncated : truncated.AddMinutes(5 - rem);
     }
+
+    /// <summary>
+    /// מסמן DateTime כ-UTC בלי לשנות את הערך עצמו (רק את ה-Kind).
+    /// נדרש כי DateTime שמגיע מ-Model Binding (Query/Route) מקבל Kind=Unspecified,
+    /// ו-Postgres/Npgsql דורש Kind=Utc בכל השוואה מול עמודת "timestamp with time zone".
+    /// ב-SQL Server זה לא היה משנה (Kind לא נבדק שם), ולכן זו נקודה שקל לפספס במעבר.
+    /// </summary>
+    public static DateTime AsUtc(DateTime dt) => DateTime.SpecifyKind(dt, DateTimeKind.Utc);
 }

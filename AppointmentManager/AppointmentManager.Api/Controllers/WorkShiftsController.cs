@@ -8,6 +8,7 @@
 
 using AppointmentManager.Api.Extensions;
 using AppointmentManager.Application.DTOs;
+using AppointmentManager.Application.Helpers;
 using AppointmentManager.Application.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -32,7 +33,7 @@ namespace AppointmentManager.Api.Controllers
         [HttpGet("{date}")] // {date} = Route Parameter
         public async Task<IActionResult> GetByDate(DateTime date)
         {
-            var result = await workShiftService.GetWorkShiftsByDateAsync(date);
+            var result = await workShiftService.GetWorkShiftsByDateAsync(DateTimeHelpers.AsUtc(date));
             return result.IsSuccess ? Ok(result.Value) : result.ToActionResult();
         }
 

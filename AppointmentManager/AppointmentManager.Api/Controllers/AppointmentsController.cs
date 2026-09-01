@@ -10,6 +10,7 @@
 using System.Security.Claims;
 using AppointmentManager.Api.Extensions;
 using AppointmentManager.Application.DTOs;
+using AppointmentManager.Application.Helpers;
 using AppointmentManager.Application.Interfaces;
 using AppointmentManager.Application.Services;
 using AppointmentManager.Domain;
@@ -47,6 +48,8 @@ namespace AppointmentManager.Api.Controllers
             // המרת ה-Request ל-Appointment Entity
             var newApp = mapper.Map<Appointment>(request);
             newApp.ClientId = Guid.Parse(userIdClaim); // שיוך התור למשתמש המחובר
+            // ה-Frontend שולח זמן מקומי בלי timezone (Kind=Unspecified), ו-Postgres דורש Kind=Utc
+            newApp.StartTime = DateTimeHelpers.AsUtc(newApp.StartTime);
 
             var result = await appointmentService.BookAppointmentAsync(newApp);
 
@@ -80,7 +83,8 @@ namespace AppointmentManager.Api.Controllers
         public async Task<IActionResult> GetAvailableSlots([FromQuery] DateTime date)
         {
             // [FromQuery] = קריאת הפרמטר מה-Query String (ה-URL אחרי "?")
-            var result = await availabilityService.GetAvailableSlotsAsync(date);
+            // AsUtc: Model Binding מחזיר Kind=Unspecified, ו-Postgres דורש Kind=Utc בהשוואות
+            var result = await availabilityService.GetAvailableSlotsAsync(DateTimeHelpers.AsUtc(date));
             return result.IsSuccess ? Ok(result.Value) : result.ToActionResult();
         }
 
@@ -92,7 +96,7 @@ namespace AppointmentManager.Api.Controllers
         [AllowAnonymous]
         public async Task<IActionResult> GetClientView([FromQuery] DateTime date)
         {
-            var result = await appointmentService.GetClientViewAsync(date);
+            var result = await appointmentService.GetClientViewAsync(DateTimeHelpers.AsUtc(date));
             return result.IsSuccess ? Ok(result.Value) : result.ToActionResult();
         }
 
@@ -105,7 +109,7 @@ namespace AppointmentManager.Api.Controllers
         [HttpGet("admin-calendar")]
         public async Task<IActionResult> GetAdminCalendar([FromQuery] DateTime start, [FromQuery] DateTime end)
         {
-            var result = await appointmentService.GetAdminCalendarAsync(start, end);
+            var result = await appointmentService.GetAdminCalendarAsync(DateTimeHelpers.AsUtc(start), DateTimeHelpers.AsUtc(end));
             return result.IsSuccess ? Ok(result.Value) : result.ToActionResult();
         }
 
@@ -169,7 +173,7 @@ namespace AppointmentManager.Api.Controllers
                 return BadRequest("פורמט שעת התחלה לא תקין. יש לשלוח בפורמט HH:mm");
             }
 
-            var result = await availabilityService.GetPlacementOptionsForBlockAsync(date, durationMinutes, blockStartTime);
+            var result = await availabilityService.GetPlacementOptionsForBlockAsync(DateTimeHelpers.AsUtc(date), durationMinutes, blockStartTime);
 
             return result.IsSuccess ? Ok(result.Value) : result.ToActionResult();
         }

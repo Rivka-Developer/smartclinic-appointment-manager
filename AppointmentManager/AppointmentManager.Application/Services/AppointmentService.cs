@@ -89,6 +89,9 @@ public class AppointmentService(
     /// </summary>
     public async Task<Result> AdminBookForClientAsync(AppointmentRequest request)
     {
+        // ה-Frontend שולח זמן מקומי בלי timezone (Kind=Unspecified), ו-Postgres דורש Kind=Utc
+        request = request with { StartTime = DateTimeHelpers.AsUtc(request.StartTime) };
+
         // בדיקה: אין תורים בשישי ושבת
         if (request.StartTime.DayOfWeek == DayOfWeek.Friday || request.StartTime.DayOfWeek == DayOfWeek.Saturday)
             return Result.Failure(AppointmentErrors.WeekendNotAllowed);
