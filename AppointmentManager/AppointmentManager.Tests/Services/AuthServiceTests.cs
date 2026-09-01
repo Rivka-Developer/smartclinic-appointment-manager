@@ -14,6 +14,7 @@ using AppointmentManager.Domain;
 using AppointmentManager.Domain.Entities;
 using AppointmentManager.Domain.Interfaces;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 using Moq;
 using BC = BCrypt.Net.BCrypt; // לצורך יצירת Hash בדיקות
 
@@ -50,7 +51,7 @@ public class AuthServiceTests
         configMock.Setup(c => c["Jwt:Audience"]).Returns("TestAudience");
 
         // יצירת השירות הנבדק עם ה-Mocks
-        _svc = new AuthService(_uowMock.Object, configMock.Object);
+        _svc = new AuthService(_uowMock.Object, configMock.Object, Mock.Of<ILogger<AuthService>>());
     }
 
     // ─── בדיקות RegisterAsync ─────────────────────────────────────────────────

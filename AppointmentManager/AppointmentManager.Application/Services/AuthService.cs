@@ -18,6 +18,7 @@ using AppointmentManager.Domain.Interfaces;
 using AppointmentManager.Domain.Common;
 using Google.Apis.Auth;                   // לאימות ID Token מול Google
 using Microsoft.Extensions.Configuration; // לקריאת הגדרות מ-appsettings.json
+using Microsoft.Extensions.Logging;       // ללוגים
 using Microsoft.IdentityModel.Tokens;     // ל-SymmetricSecurityKey ו-SigningCredentials
 using BC = BCrypt.Net.BCrypt;             // כינוי קצר לספריית BCrypt לצורך הצפנת סיסמאות
 
@@ -29,7 +30,7 @@ namespace AppointmentManager.Application.Services;
 /// IUnitOfWork = גישה לכל ה-Repositories.
 /// IConfiguration = גישה לקובץ ההגדרות (appsettings.json).
 /// </summary>
-public class AuthService(IUnitOfWork uow, IConfiguration config) : IAuthService
+public class AuthService(IUnitOfWork uow, IConfiguration config, ILogger<AuthService> logger) : IAuthService
 {
     /// <summary>
     /// רושם משתמש חדש למערכת.
@@ -102,8 +103,10 @@ public class AuthService(IUnitOfWork uow, IConfiguration config) : IAuthService
                 Audience = new[] { config["Authentication:Google:ClientId"]! }
             });
         }
-        catch (InvalidJwtException)
+        catch (InvalidJwtException ex)
         {
+            // לוג מפורט זמני לאבחון כשל אימות מול Google (Audience שגוי? טוקן פג תוקף? Issuer לא תקין?)
+            logger.LogWarning(ex, "Google ID token rejected. ConfiguredAudience={ConfiguredAudience}", config["Authentication:Google:ClientId"]);
             return Result.Failure<AuthResponse>(AuthErrors.InvalidGoogleToken);
         }
 
