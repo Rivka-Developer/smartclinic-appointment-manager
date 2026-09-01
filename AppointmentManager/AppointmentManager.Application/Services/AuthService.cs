@@ -106,7 +106,22 @@ public class AuthService(IUnitOfWork uow, IConfiguration config, ILogger<AuthSer
         catch (InvalidJwtException ex)
         {
             // לוג מפורט זמני לאבחון כשל אימות מול Google (Audience שגוי? טוקן פג תוקף? Issuer לא תקין?)
-            logger.LogWarning(ex, "Google ID token rejected. ConfiguredAudience={ConfiguredAudience}", config["Authentication:Google:ClientId"]);
+            // פענוח ה-payload בלי אימות חתימה - רק כדי לראות מה ה-aud/iss בפועל בטוקן שהתקבל.
+            string rawPayload = "N/A";
+            try
+            {
+                var parts = request.IdToken.Split('.');
+                if (parts.Length > 1)
+                {
+                    var s = parts[1].Replace('-', '+').Replace('_', '/');
+                    s = s.PadRight(s.Length + (4 - s.Length % 4) % 4, '=');
+                    rawPayload = Encoding.UTF8.GetString(Convert.FromBase64String(s));
+                }
+            }
+            catch { /* פענוח דיבוג בלבד - כשל כאן לא אמור לחסום את תגובת השגיאה המקורית */ }
+
+            logger.LogWarning(ex, "Google ID token rejected. ConfiguredAudience={ConfiguredAudience} RawPayload={RawPayload}",
+                config["Authentication:Google:ClientId"], rawPayload);
             return Result.Failure<AuthResponse>(AuthErrors.InvalidGoogleToken);
         }
 
