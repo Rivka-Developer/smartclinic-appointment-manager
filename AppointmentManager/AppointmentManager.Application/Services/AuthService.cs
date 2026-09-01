@@ -122,8 +122,13 @@ public class AuthService(IUnitOfWork uow, IConfiguration config, ILogger<AuthSer
             }
             catch { /* פענוח דיבוג בלבד - כשל כאן לא אמור לחסום את תגובת השגיאה המקורית */ }
 
-            logger.LogWarning(ex, "Google ID token rejected. ConfiguredAudience={ConfiguredAudience} RawPayload={RawPayload}",
-                config["Authentication:Google:ClientId"], rawPayload);
+            // דיבוג בלבד: הדפסת קוד ה-Unicode (hex) של כל תו בערך המוגדר, כדי לחשוף תווים "בלתי-נראים"
+            // (למשל מקף לא-רגיל) שנראים זהים בעין אבל שוברים השוואת מחרוזות מדויקת.
+            var configuredValue = config["Authentication:Google:ClientId"] ?? string.Empty;
+            var hexCodes = string.Join(" ", configuredValue.Select(c => ((int)c).ToString("X4")));
+
+            logger.LogWarning(ex, "Google ID token rejected. ConfiguredAudience={ConfiguredAudience} ConfiguredAudienceHex={ConfiguredAudienceHex} RawPayload={RawPayload}",
+                configuredValue, hexCodes, rawPayload);
             return Result.Failure<AuthResponse>(AuthErrors.InvalidGoogleToken);
         }
 
