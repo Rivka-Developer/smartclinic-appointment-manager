@@ -90,7 +90,8 @@ public class AuthService(IUnitOfWork uow, IConfiguration config, ILogger<AuthSer
     }
 
     /// <summary>
-    /// מתחבר (או נרשם אוטומטית) עם חשבון Google.
+    /// מתחבר עם חשבון Google. לא יוצר משתמש חדש - הרשמה נעשית רק דרך טופס ההרשמה
+    /// (כדי שגם מספר טלפון, ש-Google לא מספקת, ייאסף).
     /// </summary>
     public async Task<Result<AuthResponse>> GoogleLoginAsync(GoogleLoginRequest request)
     {
@@ -132,25 +133,16 @@ public class AuthService(IUnitOfWork uow, IConfiguration config, ILogger<AuthSer
             return Result.Failure<AuthResponse>(AuthErrors.InvalidGoogleToken);
         }
 
-        // חיפוש משתמש קיים לפי אימייל - אם נרשם בעבר עם סיסמה, מקשרים את חשבון Google אליו.
+        // חיפוש משתמש קיים לפי אימייל - כניסה עם Google מיועדת רק למשתמשים שכבר רשומים.
+        // הרשמה נעשית אך ורק דרך טופס ההרשמה, כדי לאסוף גם מספר טלפון (ש-Google לא מספקת).
         var user = await uow.Users.GetByEmailAsync(payload.Email);
 
         if (user == null)
         {
-            // משתמש חדש - נוצר כ-Client רגיל, ללא סיסמה.
-            user = new User
-            {
-                FullName = payload.Name ?? payload.Email,
-                Email = payload.Email,
-                PhoneNumber = string.Empty,
-                PasswordHash = null,
-                GoogleId = payload.Subject,
-                Role = UserRole.Client
-            };
-            await uow.Users.AddAsync(user);
-            await uow.SaveChangesAsync();
+            return Result.Failure<AuthResponse>(AuthErrors.GoogleAccountNotFound);
         }
-        else if (user.GoogleId == null)
+
+        if (user.GoogleId == null)
         {
             // משתמש קיים שנרשם עם סיסמה - קישור חשבון Google אליו.
             user.GoogleId = payload.Subject;

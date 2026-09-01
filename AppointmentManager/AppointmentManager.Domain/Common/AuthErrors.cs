@@ -49,5 +49,12 @@ namespace AppointmentManager.Domain.Common
         /// ErrorType.Unauthorized = HTTP 401 Unauthorized.
         /// </summary>
         public static Error InvalidGoogleToken => Error.Unauthorized("Auth.InvalidGoogleToken", "אימות מול Google נכשל.");
+
+        /// <summary>
+        /// שגיאה: ניסיון כניסה עם Google כשלא קיים חשבון עם אימייל זה.
+        /// כניסה עם Google מיועדת רק למשתמשים קיימים - הרשמה נעשית דרך טופס ההרשמה בלבד (כדי לאסוף גם מספר טלפון).
+        /// ErrorType.NotFound = HTTP 404 Not Found.
+        /// </summary>
+        public static Error GoogleAccountNotFound => Error.NotFound("Auth.GoogleAccountNotFound", "לא נמצא חשבון עם כתובת המייל הזו. יש להירשם דרך טופס ההרשמה.");
     }
 }

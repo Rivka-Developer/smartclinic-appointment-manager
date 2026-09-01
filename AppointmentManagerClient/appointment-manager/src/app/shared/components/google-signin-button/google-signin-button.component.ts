@@ -10,7 +10,7 @@
 // הסקריפט https://accounts.google.com/gsi/client נטען גלובלית ב-index.html.
 // ─────────────────────────────────────────────────────────────────────────────
 
-import { AfterViewInit, Component, ElementRef, EventEmitter, Output, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, EventEmitter, Input, Output, ViewChild } from '@angular/core';
 import { environment } from '../../../../environments/environment';
 
 declare global {
@@ -31,6 +31,9 @@ export class GoogleSigninButtonComponent implements AfterViewInit {
   /** פולט את ה-ID Token שהתקבל מ-Google לאחר בחירת חשבון */
   @Output() googleToken = new EventEmitter<string>();
 
+  /** הטקסט על הכפתור: 'signin_with' (כניסה) בדף הכניסה, 'signup_with' (הרשמה) בדף ההרשמה */
+  @Input() text: 'signin_with' | 'signup_with' | 'continue_with' = 'signin_with';
+
   ngAfterViewInit(): void {
     if (!window.google) return; // הסקריפט של Google עדיין לא נטען (רשת איטית וכו')
 
@@ -44,7 +47,8 @@ export class GoogleSigninButtonComponent implements AfterViewInit {
       theme: 'outline',
       size: 'large',
       width: 320,
-      locale: 'he'
+      locale: 'he',
+      text: this.text
     });
   }
 }

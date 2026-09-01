@@ -19,13 +19,13 @@ import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
 import { SnackService } from '../../../core/services/snack.service';
 import { PolicyModalComponent } from '../../../shared/components/policy-modal/policy-modal.component';
-import { GoogleSigninButtonComponent } from '../../../shared/components/google-signin-button/google-signin-button.component';
+import { IconComponent } from '../../../shared/components/icon/icon.component';
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'app-register',
   standalone: true,
-  imports: [ReactiveFormsModule, RouterLink, PolicyModalComponent, GoogleSigninButtonComponent],
+  imports: [ReactiveFormsModule, RouterLink, PolicyModalComponent, IconComponent],
   templateUrl: './register.component.html',
   styleUrls: ['../auth.shared.css', './register.component.css']
 })
@@ -37,6 +37,9 @@ export class RegisterComponent {
 
   loading       = signal(false);
   showPolicy    = signal(false);
+
+  /** האם להציג את הסיסמה כטקסט גלוי (טוגל עין) */
+  showPassword  = signal(false);
 
   /**
    * הטופס הריאקטיבי עם ולידציות:
@@ -83,10 +86,8 @@ export class RegisterComponent {
     this.router.navigate(['/client/home']);
   }
 
-  /** נקרא לאחר שהמשתמש בחר חשבון Google; הניתוב נעשה אוטומטית ב-_persist() */
-  onGoogleLogin(idToken: string): void {
-    this.auth.loginWithGoogle(idToken).subscribe({
-      error: () => this.snack.error('ההתחברות עם Google נכשלה')
-    });
+  /** מחליף בין הצגת הסיסמה כטקסט גלוי לבין הסתרתה */
+  togglePasswordVisibility(): void {
+    this.showPassword.update(v => !v);
   }
 }

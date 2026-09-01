@@ -20,6 +20,7 @@ import { RouterLink } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
 import { SnackService } from '../../../core/services/snack.service';
 import { GoogleSigninButtonComponent } from '../../../shared/components/google-signin-button/google-signin-button.component';
+import { IconComponent } from '../../../shared/components/icon/icon.component';
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -28,7 +29,8 @@ import { GoogleSigninButtonComponent } from '../../../shared/components/google-s
   imports: [
     ReactiveFormsModule,
     RouterLink,
-    GoogleSigninButtonComponent
+    GoogleSigninButtonComponent,
+    IconComponent
   ],
   templateUrl: './login.component.html',
   styleUrls: ['../auth.shared.css', './login.component.css']
@@ -40,6 +42,9 @@ export class LoginComponent {
 
   /** האם נשלחת בקשת HTTP ועדיין ממתינים לתשובה? */
   loading = signal(false);
+
+  /** האם להציג את הסיסמה כטקסט גלוי (טוגל עין) */
+  showPassword = signal(false);
 
   /**
    * הטופס הריאקטיבי עם ולידציה:
@@ -73,10 +78,16 @@ export class LoginComponent {
     });
   }
 
+  /** מחליף בין הצגת הסיסמה כטקסט גלוי לבין הסתרתה */
+  togglePasswordVisibility(): void {
+    this.showPassword.update(v => !v);
+  }
+
   /** נקרא לאחר שהמשתמש בחר חשבון Google; הניתוב נעשה אוטומטית ב-_persist() */
   onGoogleLogin(idToken: string): void {
     this.auth.loginWithGoogle(idToken).subscribe({
-      error: () => this.snack.error('ההתחברות עם Google נכשלה')
+      // 404 = אין חשבון עם המייל הזה (כניסה עם Google לא יוצרת חשבון חדש) - מציגים את הודעת השרת
+      error: (err) => this.snack.error(err?.error?.detail ?? 'ההתחברות עם Google נכשלה')
     });
   }
 }

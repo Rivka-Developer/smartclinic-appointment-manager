@@ -69,14 +69,25 @@
       <!-- שדה סיסמה -->
       <div class="form-group">
         <label class="form-label">סיסמה</label>
-        <input
-          type="password"
-          class="form-control"
-          formControlName="password"
-          placeholder="לפחות 6 תווים"
-          dir="ltr"
-          autocomplete="new-password"
-        />
+        <div class="password-field">
+          <input
+            [type]="showPassword() ? 'text' : 'password'"
+            class="form-control"
+            formControlName="password"
+            placeholder="לפחות 6 תווים"
+            dir="ltr"
+            autocomplete="new-password"
+          />
+          <button
+            type="button"
+            class="password-toggle"
+            (click)="togglePasswordVisibility()"
+            [attr.aria-label]="showPassword() ? 'הסתר סיסמה' : 'הצג סיסמה'"
+            tabindex="-1"
+          >
+            <app-icon [name]="showPassword() ? 'eye-slash' : 'eye'" [size]="20" />
+          </button>
+        </div>
         @if (form.get('password')?.invalid && form.get('password')?.touched) {
           <span class="form-error">סיסמה חייבת להכיל לפחות 6 תווים</span>
         }
@@ -96,9 +107,6 @@
         }
       </button>
     </form>
-
-    <div class="auth-divider">או</div>
-    <app-google-signin-button (googleToken)="onGoogleLogin($event)" />
 
     <!-- קישור לדף הכניסה למי שכבר רשומה -->
     <p class="auth-footer">

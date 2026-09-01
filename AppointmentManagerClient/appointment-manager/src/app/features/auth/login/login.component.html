@@ -36,14 +36,25 @@
       <!-- שדה סיסמה -->
       <div class="form-group">
         <label class="form-label">סיסמה</label>
-        <input
-          type="password"
-          class="form-control"
-          formControlName="password"
-          placeholder="••••••••"
-          dir="ltr"
-          autocomplete="current-password"
-        />
+        <div class="password-field">
+          <input
+            [type]="showPassword() ? 'text' : 'password'"
+            class="form-control"
+            formControlName="password"
+            placeholder="••••••••"
+            dir="ltr"
+            autocomplete="current-password"
+          />
+          <button
+            type="button"
+            class="password-toggle"
+            (click)="togglePasswordVisibility()"
+            [attr.aria-label]="showPassword() ? 'הסתר סיסמה' : 'הצג סיסמה'"
+            tabindex="-1"
+          >
+            <app-icon [name]="showPassword() ? 'eye-slash' : 'eye'" [size]="20" />
+          </button>
+        </div>
       </div>
 
       <!-- כפתור שליחה – מושבת אם הטופס לא תקין או בטעינה -->
