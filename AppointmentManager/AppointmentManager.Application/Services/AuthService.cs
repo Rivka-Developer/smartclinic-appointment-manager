@@ -98,9 +98,11 @@ public class AuthService(IUnitOfWork uow, IConfiguration config, ILogger<AuthSer
         try
         {
             // אימות ה-ID Token מול שרתי Google: בודק חתימה, תוקף, ושה-Audience תואם ל-Client ID שלנו.
+            // Trim: משתני סביבה שהוזנו ידנית (כמו ב-Render) עלולים להכיל רווח מוביל/נגרר בלתי-נראה,
+            // שגורם להשוואת ה-aud להיכשל למרות שהערכים נראים זהים.
             payload = await GoogleJsonWebSignature.ValidateAsync(request.IdToken, new GoogleJsonWebSignature.ValidationSettings
             {
-                Audience = new[] { config["Authentication:Google:ClientId"]! }
+                Audience = new[] { config["Authentication:Google:ClientId"]!.Trim() }
             });
         }
         catch (InvalidJwtException ex)
