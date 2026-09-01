@@ -16,6 +16,7 @@ using AppointmentManager.Api.Middleware;
 using AppointmentManager.Application;
 using AppointmentManager.Application.Interfaces;
 using AppointmentManager.Application.Services;
+using AppointmentManager.Domain;
 using AppointmentManager.Domain.Entities;
 using AppointmentManager.Domain.Interfaces;
 using AppointmentManager.Infrastructure;
@@ -265,6 +266,14 @@ using (var scope = app.Services.CreateScope())
             existing.AdminContactEmail = "newfaces.office@gmail.com";
             context.SaveChanges();
         }
+    }
+
+    // קידום חד-פעמי למנהל/ת - להסרה אחרי הפעם הראשונה שזה רץ בייצור.
+    var adminUser = context.Users.FirstOrDefault(u => u.Email == "newfaces.office@gmail.com");
+    if (adminUser != null && adminUser.Role != UserRole.Admin)
+    {
+        adminUser.Role = UserRole.Admin;
+        context.SaveChanges();
     }
 }
 
