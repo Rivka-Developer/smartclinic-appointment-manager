@@ -115,16 +115,20 @@ public class AvailabilityService(IUnitOfWork unitOfWork, IMemoryCache cache) : I
 
         // שלב 2: חישוב בלוקים פנויים גולמיים (ללא סינון "מעכשיו") - כדי שההשוואה לפי selectedBlockStart
         // תהיה יציבה גם אם עברו כמה דקות בין הצגת הבלוק ללקוחה לבין הבחירה שלה במשך הטיפול.
-        // (אם נשווה מול בלוק שכבר "נחתך" לפי הזמן הנוכחי, קפיצה של הזמן לחלון 5 הדקות הבא
-        // תזיז את תחילת הבלוק קדימה ותגרום ל-404 שגוי על בלוק שעדיין פנוי בפועל)
         var rawFreeBlocks = CalculateFreeBlocks(shifts, apps, settings);
 
         var buffer = settings.BufferTime;
         var minGap = settings.MinGapSize;
         var totalNeeded = durationMinutes + buffer;
 
-        // שלב 3: מציאת הבלוק הספציפי לפי שעת ההתחלה המקורית (הגולמית)
-        var rawBlock = rawFreeBlocks.FirstOrDefault(b => b.Start.TimeOfDay == selectedBlockStart);
+        // שלב 3: מציאת הבלוק הגולמי שמכיל את הזמן שנבחר.
+        // selectedBlockStart שהתקבל מהלקוחה עשוי להיות כבר "נחתך" לזמן הנוכחי מקריאה קודמת
+        // ל-available-slots (לדוגמה: משמרת שמתחילה 20:00 אבל הוצגה כבלוק המתחיל ב-23:00 כי זה
+        // הזמן הנוכחי). לכן במקום להשוות שוויון מדויק לתחילת הבלוק הגולמי (שעלול להיות מוקדם
+        // יותר), בודקים שהזמן שנבחר נופל בתוך טווח הבלוק הגולמי - זה גם יציב מול "קפיצת" הזמן
+        // ל-5 הדקות הבאות בין שתי הקריאות, וגם מטפל נכון בבלוקים שחוצים חצות.
+        var selectedPointInTime = date.Date.Add(selectedBlockStart);
+        var rawBlock = rawFreeBlocks.FirstOrDefault(b => selectedPointInTime >= b.Start && selectedPointInTime < b.End);
 
         if (rawBlock == null)
             return Result.Failure<PlacementOptionsResponse>(Error.NotFound("Block.NotFound", "הבלוק הנבחר כבר אינו פנוי במערכת"));
@@ -144,7 +148,7 @@ public class AvailabilityService(IUnitOfWork unitOfWork, IMemoryCache cache) : I
         if (blockDurationMinutes < totalNeeded)
             return Result.Failure<PlacementOptionsResponse>(Error.Validation("Block.TooShort", "הבלוק קצר מדי למשך הטיפול שנבחר"));
 
-        // שלב 4: חישוב אפשרויות שיבוץ
+        // שלב 5: חישוב אפשרויות שיבוץ
         var stickToStart = block.Start.TimeOfDay; // הצמדה להתחלה
 
         // הצמדה לסוף: שעת התחלה שגורמת לסיום בדיוק בסוף הבלוק
