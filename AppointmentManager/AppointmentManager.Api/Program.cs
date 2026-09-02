@@ -102,7 +102,11 @@ builder.Services.AddAutoMapper(cfg => cfg.AddProfile<MappingProfile>());
 // Controllers: הגדרת JSON Serialization לכתיבת Enums כמחרוזות (לדוגמה: "Admin" במקום 0)
 builder.Services.AddControllers()
     .AddJsonOptions(opts =>
-        opts.JsonSerializerOptions.Converters.Add(new System.Text.Json.Serialization.JsonStringEnumConverter()));
+    {
+        opts.JsonSerializerOptions.Converters.Add(new System.Text.Json.Serialization.JsonStringEnumConverter());
+        // מונע סיומת "Z"/Offset ב-DateTime-ים יוצאים (ראה UnspecifiedDateTimeJsonConverter)
+        opts.JsonSerializerOptions.Converters.Add(new AppointmentManager.Api.Serialization.UnspecifiedDateTimeJsonConverter());
+    });
 
 builder.Services.AddEndpointsApiExplorer(); // נדרש ל-Swagger
 
