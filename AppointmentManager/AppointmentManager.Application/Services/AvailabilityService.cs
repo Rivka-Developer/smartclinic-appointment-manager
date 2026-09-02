@@ -103,31 +103,45 @@ public class AvailabilityService(IUnitOfWork unitOfWork, IMemoryCache cache) : I
     public async Task<Result<PlacementOptionsResponse>> GetPlacementOptionsForBlockAsync(
         DateTime date,
         int durationMinutes,
-        TimeSpan selectedBlockStart) // שעת ההתחלה של הבלוק שנבחר
+        TimeSpan selectedBlockStart) // שעת ההתחלה של הבלוק שנבחר, כפי שהוצגה ללקוחה מקריאת available-slots קודמת
     {
-        // שלב 1: קבלת כל הבלוקים הפנויים ביום
-        var slotsResult = await GetAvailableSlotsAsync(date);
-        if (!slotsResult.IsSuccess)
-            return Result.Failure<PlacementOptionsResponse>(slotsResult.Error);
-
-        // שלב 2: שליפת הגדרות
+        // שלב 1: שליפת הגדרות ונתונים גולמיים
         var settings = await GetCachedSettingsAsync();
         if (settings == null)
             return Result.Failure<PlacementOptionsResponse>(Error.NotFound("Settings.NotFound", "הגדרות מערכת לא נמצאו"));
+
+        var shifts = await unitOfWork.Shifts.GetSortedShiftsByDateAsync(date);
+        var apps = await unitOfWork.Appointments.GetActiveAppointmentsByDateAsync(date);
+
+        // שלב 2: חישוב בלוקים פנויים גולמיים (ללא סינון "מעכשיו") - כדי שההשוואה לפי selectedBlockStart
+        // תהיה יציבה גם אם עברו כמה דקות בין הצגת הבלוק ללקוחה לבין הבחירה שלה במשך הטיפול.
+        // (אם נשווה מול בלוק שכבר "נחתך" לפי הזמן הנוכחי, קפיצה של הזמן לחלון 5 הדקות הבא
+        // תזיז את תחילת הבלוק קדימה ותגרום ל-404 שגוי על בלוק שעדיין פנוי בפועל)
+        var rawFreeBlocks = CalculateFreeBlocks(shifts, apps, settings);
 
         var buffer = settings.BufferTime;
         var minGap = settings.MinGapSize;
         var totalNeeded = durationMinutes + buffer;
 
-        // שלב 3: מציאת הבלוק הספציפי לפי שעת ההתחלה
-        var block = slotsResult.Value.FreeBlocks
-            .FirstOrDefault(b => b.Start.TimeOfDay == selectedBlockStart); // השוואת שעה בלבד
+        // שלב 3: מציאת הבלוק הספציפי לפי שעת ההתחלה המקורית (הגולמית)
+        var rawBlock = rawFreeBlocks.FirstOrDefault(b => b.Start.TimeOfDay == selectedBlockStart);
 
-        if (block == null)
+        if (rawBlock == null)
             return Result.Failure<PlacementOptionsResponse>(Error.NotFound("Block.NotFound", "הבלוק הנבחר כבר אינו פנוי במערכת"));
 
+        // שלב 4: הצמדת תחילת הבלוק לזמן הנוכחי אם צריך (כמו ב-GetAvailableSlotsAsync)
+        bool isPastDate = date.Date < DateTime.Today;
+        var notBefore = isPastDate ? DateTime.MinValue : DateTimeHelpers.RoundUpTo5Minutes(DateTime.UtcNow);
+        var effectiveStart = rawBlock.Start < notBefore ? notBefore : rawBlock.Start;
+
+        if (effectiveStart >= rawBlock.End)
+            return Result.Failure<PlacementOptionsResponse>(Error.NotFound("Block.NotFound", "הבלוק הנבחר כבר אינו פנוי במערכת"));
+
+        var block = rawBlock with { Start = effectiveStart };
+        var blockDurationMinutes = (block.End - block.Start).TotalMinutes;
+
         // בדיקה: האם הבלוק מסוגל להכיל את התור?
-        if (block.DurationMinutes < totalNeeded)
+        if (blockDurationMinutes < totalNeeded)
             return Result.Failure<PlacementOptionsResponse>(Error.Validation("Block.TooShort", "הבלוק קצר מדי למשך הטיפול שנבחר"));
 
         // שלב 4: חישוב אפשרויות שיבוץ
@@ -139,7 +153,7 @@ public class AvailabilityService(IUnitOfWork unitOfWork, IMemoryCache cache) : I
         List<TimeRangeDto> otherRanges = [];
 
         // חישוב טווח "אמצע" אם יש מקום לשני מרווחים מינימליים
-        if (block.DurationMinutes >= totalNeeded + (2 * minGap))
+        if (blockDurationMinutes >= totalNeeded + (2 * minGap))
         {
             otherRanges.Add(new TimeRangeDto(
                 block.Start.Add(TimeSpan.FromMinutes(minGap)).TimeOfDay,

@@ -34,6 +34,7 @@
           formControlName="email"
           placeholder="your@email.com"
           dir="ltr"
+          autocomplete="username"
         />
         @if (form.get('email')?.invalid && form.get('email')?.touched) {
           <span class="form-error">אימייל לא תקין</span>
