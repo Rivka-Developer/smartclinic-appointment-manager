@@ -1,8 +1,20 @@
 .auth-card {
+  position: relative;
   width: 100%;
   max-width: 420px;
   padding: 40px;
   animation: slideUp .4s ease;
+}
+
+.auth-loading-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.85);
+  border-radius: var(--radius-lg, 16px);
+  z-index: 5;
 }
 
 .auth-logo {

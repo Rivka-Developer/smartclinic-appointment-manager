@@ -21,6 +21,7 @@ import { AuthService } from '../../../core/services/auth.service';
 import { SnackService } from '../../../core/services/snack.service';
 import { GoogleSigninButtonComponent } from '../../../shared/components/google-signin-button/google-signin-button.component';
 import { IconComponent } from '../../../shared/components/icon/icon.component';
+import { SpinnerComponent } from '../../../shared/components/spinner/spinner.component';
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -30,7 +31,8 @@ import { IconComponent } from '../../../shared/components/icon/icon.component';
     ReactiveFormsModule,
     RouterLink,
     GoogleSigninButtonComponent,
-    IconComponent
+    IconComponent,
+    SpinnerComponent
   ],
   templateUrl: './login.component.html',
   styleUrls: ['../auth.shared.css', './login.component.css']
@@ -85,9 +87,13 @@ export class LoginComponent {
 
   /** נקרא לאחר שהמשתמש בחר חשבון Google; הניתוב נעשה אוטומטית ב-_persist() */
   onGoogleLogin(idToken: string): void {
+    this.loading.set(true); // מציגים ספינר עד שהשרת מאמת מול גוגל ומחזיר תשובה
     this.auth.loginWithGoogle(idToken).subscribe({
       // 404 = אין חשבון עם המייל הזה (כניסה עם Google לא יוצרת חשבון חדש) - מציגים את הודעת השרת
-      error: (err) => this.snack.error(err?.error?.detail ?? 'ההתחברות עם Google נכשלה')
+      error: (err) => {
+        this.snack.error(err?.error?.detail ?? 'ההתחברות עם Google נכשלה');
+        this.loading.set(false);
+      }
     });
   }
 }

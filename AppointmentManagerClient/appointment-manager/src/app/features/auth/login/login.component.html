@@ -6,6 +6,13 @@
 <div class="auth-page">
   <div class="auth-card card">
 
+    <!-- ספינר טעינה שמכסה את הכרטיס בזמן אימות מול גוגל -->
+    @if (loading()) {
+      <div class="auth-loading-overlay">
+        <app-spinner [show]="true" text="מתחברת..." />
+      </div>
+    }
+
     <!-- לוגו ושם המערכת -->
     <div class="auth-logo">
       <span class="logo-icon">✦</span>
