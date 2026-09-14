@@ -23,8 +23,9 @@ using AppointmentManager.Infrastructure;
 using AppointmentManager.Infrastructure.Repositories;
 using AppointmentManager.Infrastructure.Services;
 using Hangfire;                                        // לניהול משימות רקע
-using Hangfire.PostgreSql;                              // אחסון Hangfire על PostgreSQL
+using Hangfire.InMemory;                                // אחסון Hangfire בזיכרון (לא בבסיס הנתונים)
 using Microsoft.AspNetCore.Authentication.JwtBearer;  // לאימות JWT
+using Microsoft.AspNetCore.Diagnostics.HealthChecks;  // להגדרת נתיבי Health Check
 using AutoMapper;
 using Microsoft.EntityFrameworkCore;                  // לחיבור PostgreSQL
 using Microsoft.IdentityModel.Tokens;                 // לאמצעי אבטחת JWT
@@ -58,8 +59,15 @@ if (string.IsNullOrWhiteSpace(jwtKey) || jwtKey.Length < 32)
 // ===== 1. הגדרת בסיס הנתונים =====
 // AddDbContext = רישום ApplicationDbContext כ-Scoped Service
 // UseNpgsql = שימוש ב-PostgreSQL (Connection String מה-appsettings)
+// EnableRetryOnFailure: כש-Neon מתעורר מ-autosuspend, ניסיון החיבור הראשון עלול להיכשל.
+// מדיניות הניסיון החוזר הופכת את ההתעוררות מ-שגיאה ללקוח ל-המתנה קצרה.
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
-    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
+    options.UseNpgsql(
+        builder.Configuration.GetConnectionString("DefaultConnection"),
+        npgsql => npgsql.EnableRetryOnFailure(
+            maxRetryCount: 3,
+            maxRetryDelay: TimeSpan.FromSeconds(5),
+            errorCodesToAdd: null)));
 
 // ===== 2. רישום ה-Repositories =====
 // AddScoped = מופע חדש לכל HTTP Request (מחיקה בסוף הבקשה)
@@ -187,9 +195,12 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 builder.Services.AddAuthorization();
 
 // ===== 9. Health Checks =====
-// נקודת קצה /health שבודקת שהשרת ובסיס הנתונים תקינים
+// /health    - בדיקת חיוּת בלבד, ללא נגיעה ב-DB. זהו הנתיב ש-Render דוגם.
+// /health/db - בדיקת חיבור לבסיס הנתונים, לאבחון ידני בלבד.
+// ההפרדה נחוצה: בדיקה שנוגעת ב-DB מעירה את Neon מ-autosuspend בכל פינג,
+// וכך פינג תקופתי של Render היה גורר חיוב שעות compute מיותרות.
 builder.Services.AddHealthChecks()
-    .AddDbContextCheck<ApplicationDbContext>("database"); // בדיקת חיבור לבסיס נתונים
+    .AddDbContextCheck<ApplicationDbContext>("database", tags: ["db"]); // בדיקת חיבור לבסיס נתונים
 
 // ===== 10. Rate Limiting =====
 // הגבלת קצב הבקשות - מגינה מפני התקפות Brute Force על Login/Register
@@ -226,14 +237,17 @@ builder.Services.AddRateLimiter(options =>
 });
 
 // ===== 11. הגדרת Hangfire (משימות רקע) =====
-#pragma warning disable CS0618 // UsePostgreSqlStorage(connectionString) יוסר ב-2.0 לטובת עומס-יתר עם IConnectionFactory; ה-API הנוכחי עדיין תקין ונתמך
+// האחסון הפנימי של Hangfire (תור, היסטוריה, רישום שרתים) יושב בזיכרון ולא ב-PostgreSQL.
+// הסיבה: אחסון ב-DB גורם ל-Hangfire לדגום את בסיס הנתונים כל ~15 שניות גם כשאין עבודה,
+// מה שמונע מ-Neon להיכנס ל-autosuspend ומחייב שעות compute מסביב לשעון.
+// אין בפרויקט עבודות חד-פעמיות (BackgroundJob.Enqueue), ושתי המשימות המחזוריות
+// נרשמות מחדש בכל עליית שרת, ולכן לא נאבד מצב משמעותי.
 builder.Services.AddHangfire(configuration => configuration
     .SetDataCompatibilityLevel(CompatibilityLevel.Version_180)
     .UseSimpleAssemblyNameTypeSerializer()
     .UseRecommendedSerializerSettings()
-    .UsePostgreSqlStorage(builder.Configuration.GetConnectionString("DefaultConnection"))
+    .UseInMemoryStorage()
     .UseFilter(new Hangfire.AutomaticRetryAttribute { Attempts = 3, DelaysInSeconds = [60, 300, 900] }));
-#pragma warning restore CS0618
 
 builder.Services.AddHangfireServer();
 
@@ -308,7 +322,9 @@ app.UseHangfireDashboard("/hangfire", new Hangfire.DashboardOptions
 });
 
 app.MapControllers();           // קישור נתיבי URL ל-Controllers
-app.MapHealthChecks("/health"); // נתיב /health לבדיקת בריאות השרת
+// Predicate שמחזיר false = לא מורצת אף בדיקה, רק מאושר שהתהליך חי (בלי לגעת ב-DB)
+app.MapHealthChecks("/health", new HealthCheckOptions { Predicate = _ => false });
+app.MapHealthChecks("/health/db", new HealthCheckOptions { Predicate = check => check.Tags.Contains("db") });
 
 
 // ===== הגדרת משימות הרקע של Hangfire =====
@@ -316,12 +332,14 @@ using (var scope = app.Services.CreateScope())
 {
     var recurringJobManager = scope.ServiceProvider.GetRequiredService<IRecurringJobManager>();
 
-    // משימה 1: תזכורות תורים - פעם בשעה
-    // Cron.Hourly = ביטוי Cron "0 * * * *" = ב-0 דקות של כל שעה
+    // משימה 1: תזכורות תורים - כל 4 שעות
+    // חלון התזכורת ב-SendAppointmentRemindersAsync הוא 8 שעות (20-28 שעות מראש),
+    // ולכן מרווח של 4 שעות מבטיח כיסוי רציף עם חפיפה - אף תור לא נופל בין הסדקים.
+    // ריצה כל שעה הייתה בודקת כל תור 8 פעמים לחינם, ומעירה את Neon 24 פעמים ביום.
     recurringJobManager.AddOrUpdate<IBackgroundJobService>(
         "appointment-reminders",                     // שם המשימה (מזהה ייחודי)
         service => service.SendAppointmentRemindersAsync(),
-        Cron.Hourly);                                // תדירות: כל שעה
+        "0 */4 * * *");                              // תדירות: ב-0 דקות של כל שעה רביעית
 
     // משימה 2: דוח יומי - כל יום ב-20:00 לפי שעון ישראל
     // MisfireHandling.Ignorable: אם השרת היה מכובה בשעה 20:00, המשימה תדולג ולא תרוץ בהפעלה הבאה
