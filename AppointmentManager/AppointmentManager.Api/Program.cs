@@ -59,15 +59,13 @@ if (string.IsNullOrWhiteSpace(jwtKey) || jwtKey.Length < 32)
 // ===== 1. הגדרת בסיס הנתונים =====
 // AddDbContext = רישום ApplicationDbContext כ-Scoped Service
 // UseNpgsql = שימוש ב-PostgreSQL (Connection String מה-appsettings)
-// EnableRetryOnFailure: כש-Neon מתעורר מ-autosuspend, ניסיון החיבור הראשון עלול להיכשל.
-// מדיניות הניסיון החוזר הופכת את ההתעוררות מ-שגיאה ללקוח ל-המתנה קצרה.
+// הערה: אין כאן EnableRetryOnFailure בכוונה.
+// אסטרטגיית ניסיון חוזר של EF אינה תומכת בטרנזקציות שנפתחות ידנית, ו-UnitOfWork
+// פותח כאלה (AppointmentService, SwapOfferService). הפעלתה מפילה כל SaveChanges
+// שרץ בתוך טרנזקציה עם InvalidOperationException - כלומר קביעת תור והחלפות.
+// כדי להוסיף retry יש לעטוף כל טרנזקציה ב-Database.CreateExecutionStrategy().
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
-    options.UseNpgsql(
-        builder.Configuration.GetConnectionString("DefaultConnection"),
-        npgsql => npgsql.EnableRetryOnFailure(
-            maxRetryCount: 3,
-            maxRetryDelay: TimeSpan.FromSeconds(5),
-            errorCodesToAdd: null)));
+    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 // ===== 2. רישום ה-Repositories =====
 // AddScoped = מופע חדש לכל HTTP Request (מחיקה בסוף הבקשה)
